@@ -2,7 +2,12 @@
   "name": "@my-org/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev:api": "pnpm nx serve api",
+    "dev:web": "NEXT_PUBLIC_API_URL=http://localhost:3333 pnpm nx run web:dev -- --port 3000",
+    "dev:cms": "NEXT_PUBLIC_API_URL=http://localhost:3333 pnpm nx run cms:dev -- --port 3001",
+    "build": "pnpm nx run-many -t build -p api,web,cms"
+  },
   "private": true,
   "devDependencies": {
     "@babel/core": "^7.14.5",

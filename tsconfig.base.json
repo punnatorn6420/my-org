@@ -10,14 +10,48 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": [
+      "es2020",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@my-org/ui": ["libs/ui/src/index.ts"],
-      "@my-org/ui/*": ["libs/ui/src/*"]
+      "@my-org/ui": [
+        "libs/ui/src/index.ts"
+      ],
+      "@my-org/ui/*": [
+        "libs/ui/src/*"
+      ],
+      "@my-org/schema": [
+        "libs/schema/src/index.ts"
+      ],
+      "@my-org/schema/*": [
+        "libs/schema/src/*"
+      ],
+      "@my-org/utils": [
+        "libs/utils/src/index.ts"
+      ],
+      "@my-org/utils/*": [
+        "libs/utils/src/*"
+      ],
+      "@my-org/sections": [
+        "libs/sections/src/index.ts"
+      ],
+      "@my-org/sections/*": [
+        "libs/sections/src/*"
+      ],
+      "@my-org/renderer": [
+        "libs/renderer/src/index.ts"
+      ],
+      "@my-org/renderer/*": [
+        "libs/renderer/src/*"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }
