@@ -1,14 +1,12 @@
-import { Button } from '@my-org/ui';
+import { PageRenderer } from '@my-org/renderer';
+import { fetchPublishedHomePage } from '../lib/api';
 
-export default function Index() {
-  /*
-   * Replace the elements below with your own.
-   *
-   * Note: The corresponding styles are in the ./index.tailwind file.
-   */
+export default async function HomePage() {
+  const payload = await fetchPublishedHomePage();
+
   return (
-    <main className="p-10">
-      <Button>Hello NX</Button>
+    <main className="mx-auto max-w-6xl space-y-4 p-6">
+      <PageRenderer layout={payload.layout} sections={payload.sections} />
     </main>
   );
 }
