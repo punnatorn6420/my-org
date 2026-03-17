@@ -1,4 +1,3 @@
-// libs/ui/src/components/ui/button.tsx
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/utils';
@@ -8,10 +7,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'bg-primary text-primary-foreground shadow hover:bg-primary/90',
-        outline:
-          'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
+        default: 'bg-slate-900 text-white shadow hover:bg-slate-800',
+        outline: 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-100',
       },
       size: {
         default: 'h-9 px-4 py-2',
