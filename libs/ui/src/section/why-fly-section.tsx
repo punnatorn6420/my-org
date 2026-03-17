@@ -13,17 +13,20 @@ interface ValuePoint {
 const valuePoints: ValuePoint[] = [
   {
     title: 'Premium On-board Experience',
-    description: 'Spacious seating and a curated menu tailored for every palate.',
+    description:
+      'Spacious seating and a curated menu tailored for every palate.',
     icon: Check,
   },
   {
     title: 'Reliability & Punctuality',
-    description: 'Industry-leading on-time performance ensures your trip stays on plan.',
+    description:
+      'Industry-leading on-time performance ensures your trip stays on plan.',
     icon: ShieldCheck,
   },
   {
     title: 'Vast Network',
-    description: 'Connecting major cities and hidden gems across Southeast Asia with ease.',
+    description:
+      'Connecting major cities and hidden gems across Southeast Asia with ease.',
     icon: Globe2,
   },
 ];
@@ -33,7 +36,9 @@ export function WhyFlySection() {
     <section className="bg-slate-100 py-14">
       <div className="mx-auto grid max-w-[1200px] gap-8 px-4 md:grid-cols-2 md:items-center md:px-6">
         <div>
-          <h2 className="text-4xl font-semibold tracking-tight text-slate-900">Why Fly with Nok Air?</h2>
+          <h2 className="text-4xl font-semibold tracking-tight text-slate-900">
+            Why Fly with Nok Air?
+          </h2>
           <ul className="mt-8 space-y-6">
             {valuePoints.map((point) => {
               const Icon = point.icon;
@@ -43,8 +48,12 @@ export function WhyFlySection() {
                     <Icon className="size-4" />
                   </span>
                   <div>
-                    <h3 className="font-semibold text-slate-900">{point.title}</h3>
-                    <p className="mt-1 text-sm text-slate-600">{point.description}</p>
+                    <h3 className="font-semibold text-slate-900">
+                      {point.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {point.description}
+                    </p>
                   </div>
                 </li>
               );

@@ -13,7 +13,11 @@ import {
 } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -31,7 +35,9 @@ type TripType = (typeof tripTypes)[number];
 
 export function HeroBookingSection() {
   const [tripType, setTripType] = React.useState<TripType>('round-trip');
-  const [travelDate, setTravelDate] = React.useState<Date | undefined>(new Date());
+  const [travelDate, setTravelDate] = React.useState<Date | undefined>(
+    new Date(),
+  );
 
   return (
     <section className="bg-slate-100 pb-16">
@@ -48,9 +54,12 @@ export function HeroBookingSection() {
           <p className="mb-3 text-sm font-semibold tracking-[0.35em] text-slate-200/85 uppercase">
             Premium Travel
           </p>
-          <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">Fly With Smiles Across Asia</h1>
+          <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
+            Fly With Smiles Across Asia
+          </h1>
           <p className="mt-3 max-w-xl text-sm text-slate-100/90 md:text-base">
-            Experience premium service and comfort on every journey with thoughtfully curated routes and hospitality.
+            Experience premium service and comfort on every journey with
+            thoughtfully curated routes and hospitality.
           </p>
         </div>
       </div>
@@ -58,11 +67,18 @@ export function HeroBookingSection() {
       <div className="relative mx-auto -mt-28 max-w-[1200px] px-4 md:px-6">
         <Card className="rounded-2xl border border-slate-200 bg-white py-0 shadow-2xl shadow-slate-900/10">
           <CardHeader className="pb-2 pt-5">
-            <CardTitle className="text-base font-semibold text-slate-900">Book your next flight</CardTitle>
-            <CardDescription>Select your itinerary and travel details to get the best fares.</CardDescription>
+            <CardTitle className="text-base font-semibold text-slate-900">
+              Book your next flight
+            </CardTitle>
+            <CardDescription>
+              Select your itinerary and travel details to get the best fares.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 pb-6">
-            <Tabs value={tripType} onValueChange={(value: string) => setTripType(value as TripType)}>
+            <Tabs
+              value={tripType}
+              onValueChange={(value: string) => setTripType(value as TripType)}
+            >
               <TabsList className="bg-slate-100">
                 <TabsTrigger value="round-trip">Round Trip</TabsTrigger>
                 <TabsTrigger value="one-way">One Way</TabsTrigger>
@@ -70,7 +86,10 @@ export function HeroBookingSection() {
               </TabsList>
             </Tabs>
 
-            <form className="grid gap-3 md:grid-cols-12" aria-label="Flight search form">
+            <form
+              className="grid gap-3 md:grid-cols-12"
+              aria-label="Flight search form"
+            >
               <div className="space-y-1.5 md:col-span-3">
                 <Label htmlFor="from">From</Label>
                 <Input id="from" defaultValue="Bangkok (BKK)" />
@@ -92,11 +111,17 @@ export function HeroBookingSection() {
                       )}
                     >
                       <CalendarIcon className="mr-2 size-4" />
-                      {travelDate ? travelDate.toLocaleDateString() : 'Pick a date'}
+                      {travelDate
+                        ? travelDate.toLocaleDateString()
+                        : 'Pick a date'}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={travelDate} onSelect={setTravelDate} />
+                    <Calendar
+                      mode="single"
+                      selected={travelDate}
+                      onSelect={setTravelDate}
+                    />
                   </PopoverContent>
                 </Popover>
               </div>

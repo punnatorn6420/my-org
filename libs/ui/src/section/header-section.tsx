@@ -56,7 +56,9 @@ export function HeaderSection() {
             </a>{' '}
             | <a href="#">TH</a>
           </div>
-          <Button className="bg-black px-4 text-white hover:bg-black/85">Sign In</Button>
+          <Button className="bg-black px-4 text-white hover:bg-black/85">
+            Sign In
+          </Button>
         </div>
       </div>
     </header>

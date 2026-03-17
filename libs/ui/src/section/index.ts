@@ -7,4 +7,3 @@ export * from './flight-deals-section';
 export * from './why-fly-section';
 export * from './travel-simple-section';
 export * from './footer-section';
-export * from './homepage-preview';

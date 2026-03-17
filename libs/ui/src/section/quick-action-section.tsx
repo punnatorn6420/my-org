@@ -23,13 +23,18 @@ export function QuickActionSection() {
         {quickActions.map((item) => {
           const Icon = item.icon;
           return (
-            <Card key={item.title} className="border border-slate-200 bg-white py-0 shadow-sm">
+            <Card
+              key={item.title}
+              className="border border-slate-200 bg-white py-0 shadow-sm"
+            >
               <CardContent className="flex items-center gap-3 p-4">
                 <span className="rounded-full bg-slate-100 p-2 text-slate-500">
                   <Icon className="size-4" />
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {item.title}
+                  </p>
                   <p className="text-xs text-slate-500">{item.subtitle}</p>
                 </div>
               </CardContent>
