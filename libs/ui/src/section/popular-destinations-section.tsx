@@ -17,7 +17,7 @@ export function PopularDestinationsSection(
         <p className="mt-2 text-sm text-slate-500">{props.subtitle}</p>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {props.destinations.map((destination) => (
+          {destinations.map((destination) => (
             <Card key={destination.city} className="group relative overflow-hidden rounded-xl py-0">
               <AspectRatio ratio={4 / 5}>
                 <img

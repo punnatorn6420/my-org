@@ -19,7 +19,7 @@ export function QuickActionSection(props: QuickActionSectionProps = defaultSecti
     <section className="bg-slate-100 py-8">
       <div className="mx-auto grid max-w-[1200px] gap-4 px-4 sm:grid-cols-2 md:px-6 lg:grid-cols-4">
         {items.map((item) => {
-          const Icon = iconMap[item.icon];
+          const Icon = iconMap[item.icon] ?? CircleCheck;
           return (
             <Card key={`${item.title}-${item.subtitle}`} className="border border-slate-200 bg-white py-0 shadow-sm">
               <CardContent className="flex items-center gap-3 p-4">

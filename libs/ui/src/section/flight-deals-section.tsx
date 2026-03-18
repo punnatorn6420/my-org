@@ -18,7 +18,7 @@ export function FlightDealsSection(
         </h2>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {props.deals.map((deal) => (
+          {deals.map((deal) => (
             <Card
               key={`${deal.from}-${deal.to}`}
               className="overflow-hidden border border-slate-200 bg-white py-0 shadow-sm"
