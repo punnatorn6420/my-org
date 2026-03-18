@@ -6,20 +6,31 @@ import { defaultSectionProps } from './content-models';
 import { AspectRatio } from '../components/ui/aspect-ratio';
 import { Card } from '../components/ui/card';
 
-const iconMap: Record<WhyFlySectionProps['points'][number]['icon'], ComponentType<{ className?: string }>> = {
+const iconMap: Record<
+  WhyFlySectionProps['points'][number]['icon'],
+  ComponentType<{ className?: string }>
+> = {
   check: Check,
   'shield-check': ShieldCheck,
   globe: Globe2,
 };
 
-export function WhyFlySection(props: WhyFlySectionProps = defaultSectionProps['why-fly-section']) {
+export function WhyFlySection(
+  props: WhyFlySectionProps = defaultSectionProps['why-fly-section'],
+) {
+  const points = Array.isArray(props?.points)
+    ? props.points
+    : defaultSectionProps['why-fly-section'].points;
+
   return (
     <section className="bg-slate-100 py-14">
       <div className="mx-auto grid max-w-[1200px] gap-8 px-4 md:grid-cols-2 md:items-center md:px-6">
         <div>
-          <h2 className="text-4xl font-semibold tracking-tight text-slate-900">{props.title}</h2>
+          <h2 className="text-4xl font-semibold tracking-tight text-slate-900">
+            {props.title}
+          </h2>
           <ul className="mt-8 space-y-6">
-            {props.points.map((point) => {
+            {points.map((point) => {
               const Icon = iconMap[point.icon];
               return (
                 <li key={point.title} className="flex gap-4">
@@ -27,8 +38,12 @@ export function WhyFlySection(props: WhyFlySectionProps = defaultSectionProps['w
                     <Icon className="size-4" />
                   </span>
                   <div>
-                    <h3 className="font-semibold text-slate-900">{point.title}</h3>
-                    <p className="mt-1 text-sm text-slate-600">{point.description}</p>
+                    <h3 className="font-semibold text-slate-900">
+                      {point.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {point.description}
+                    </p>
                   </div>
                 </li>
               );
