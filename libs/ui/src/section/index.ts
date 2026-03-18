@@ -1,3 +1,4 @@
+export * from './content-models';
 export * from './header-section';
 export * from './hero-booking-section';
 export * from './quick-action-section';
@@ -8,3 +9,4 @@ export * from './why-fly-section';
 export * from './travel-simple-section';
 export * from './footer-section';
 export * from './homepage-preview';
+export * from './section-renderer';
