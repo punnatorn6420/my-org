@@ -10,14 +10,21 @@ import {
 } from '../components/ui/navigation-menu';
 import { Button } from '../components/ui/button';
 
-export function HeaderSection({
-  logoText,
-  logoHref,
-  menuItems,
-  languageLabel,
-  languageOptions,
-  signInText,
-}: HeaderSectionProps = defaultSectionProps['header-section']) {
+export function HeaderSection(
+  props: HeaderSectionProps = defaultSectionProps['header-section'],
+) {
+  const fallbackProps = defaultSectionProps['header-section'];
+
+  const logoText = props.logoText ?? fallbackProps.logoText;
+  const logoHref = props.logoHref ?? fallbackProps.logoHref;
+  const menuItems = Array.isArray(props.menuItems)
+    ? props.menuItems
+    : fallbackProps.menuItems;
+  const languageLabel = props.languageLabel ?? fallbackProps.languageLabel;
+  const languageOptions = Array.isArray(props.languageOptions)
+    ? props.languageOptions
+    : fallbackProps.languageOptions;
+  const signInText = props.signInText ?? fallbackProps.signInText;
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
       <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between gap-6 px-4 md:px-6">
@@ -50,9 +57,13 @@ export function HeaderSection({
             <a href="#" className="text-slate-900">
               {languageLabel}
             </a>{' '}
-            {languageOptions.length > 1 ? `| ${languageOptions.filter((value) => value !== languageLabel).join(' | ')}` : null}
+            {languageOptions.length > 1
+              ? `| ${languageOptions.filter((value) => value !== languageLabel).join(' | ')}`
+              : null}
           </div>
-          <Button className="bg-black px-4 text-white hover:bg-black/85">{signInText}</Button>
+          <Button className="bg-black px-4 text-white hover:bg-black/85">
+            {signInText}
+          </Button>
         </div>
       </div>
     </header>
