@@ -1,5 +1,8 @@
 import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
-import type { AnySectionProps, HomeSectionKey } from '@my-org/ui/section/content-models';
+import type {
+  AnySectionProps,
+  HomeSectionKey,
+} from '@my-org/ui/section/content-models';
 import { CmsService } from './cms.service';
 
 @Controller('cms')
@@ -17,7 +20,11 @@ export class CmsController {
     @Param('sectionKey') sectionKey: HomeSectionKey,
     @Body() body: { draftProps: AnySectionProps },
   ) {
-    return this.cmsService.updateSectionDraft(pageSlug, sectionKey, body.draftProps);
+    return this.cmsService.updateSectionDraft(
+      pageSlug,
+      sectionKey,
+      body.draftProps,
+    );
   }
 
   @Get('layout/:pageSlug')

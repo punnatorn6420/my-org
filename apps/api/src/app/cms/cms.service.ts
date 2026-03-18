@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, type PageLayout, type PublishedPage, type SectionInstance } from '@prisma/client';
 import {
   defaultSectionProps,
   HOME_SECTION_KEYS,
@@ -9,9 +8,25 @@ import {
 } from '@my-org/ui/section/content-models';
 import { PrismaService } from '../prisma/prisma.service';
 
+type SectionInstanceRecord = Awaited<
+  ReturnType<PrismaService['sectionInstance']['findFirstOrThrow']>
+>;
+
+type PageLayoutRecord = Awaited<
+  ReturnType<PrismaService['pageLayout']['findUniqueOrThrow']>
+>;
+
+type PublishedPageRecord = Awaited<
+  ReturnType<PrismaService['publishedPage']['findUniqueOrThrow']>
+>;
+
 @Injectable()
 export class CmsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private asJson(value: unknown): any {
+    return value;
+  }
 
   async ensureHomePageSeed(pageSlug = HOME_PAGE_SLUG) {
     await this.prisma.pageLayout.upsert({
@@ -19,7 +34,9 @@ export class CmsService {
       update: {},
       create: {
         pageSlug,
-        draftSections: HOME_SECTION_KEYS.map((sectionKey) => ({ sectionKey })),
+        draftSections: this.asJson(
+          HOME_SECTION_KEYS.map((sectionKey) => ({ sectionKey })),
+        ),
       },
     });
 
@@ -31,8 +48,8 @@ export class CmsService {
           create: {
             pageSlug,
             sectionKey,
-            draftProps: defaultSectionProps[sectionKey],
-            publishedProps: defaultSectionProps[sectionKey],
+            draftProps: this.asJson(defaultSectionProps[sectionKey]),
+            publishedProps: this.asJson(defaultSectionProps[sectionKey]),
           },
         }),
       ),
@@ -53,17 +70,21 @@ export class CmsService {
     };
   }
 
-  async updateSectionDraft(pageSlug: string, sectionKey: HomeSectionKey, draftProps: AnySectionProps) {
+  async updateSectionDraft(
+    pageSlug: string,
+    sectionKey: HomeSectionKey,
+    draftProps: AnySectionProps,
+  ) {
     const updated = await this.prisma.sectionInstance.upsert({
       where: { pageSlug_sectionKey: { pageSlug, sectionKey } },
       update: {
-        draftProps: draftProps as Prisma.InputJsonValue,
+        draftProps: this.asJson(draftProps),
       },
       create: {
         pageSlug,
         sectionKey,
-        draftProps: draftProps as Prisma.InputJsonValue,
-        publishedProps: defaultSectionProps[sectionKey],
+        draftProps: this.asJson(draftProps),
+        publishedProps: this.asJson(defaultSectionProps[sectionKey]),
       },
     });
 
@@ -72,48 +93,71 @@ export class CmsService {
 
   async getDraftLayout(pageSlug = HOME_PAGE_SLUG) {
     await this.ensureHomePageSeed(pageSlug);
-    const layout = await this.prisma.pageLayout.findUniqueOrThrow({ where: { pageSlug } });
+
+    const layout = await this.prisma.pageLayout.findUniqueOrThrow({
+      where: { pageSlug },
+    });
+
     return this.toLayoutDto(layout);
   }
 
-  async updateDraftLayout(pageSlug: string, draftSections: Array<{ sectionKey: HomeSectionKey }>) {
+  async updateDraftLayout(
+    pageSlug: string,
+    draftSections: Array<{ sectionKey: HomeSectionKey }>,
+  ) {
     const layout = await this.prisma.pageLayout.upsert({
       where: { pageSlug },
       update: {
-        draftSections: draftSections as Prisma.InputJsonValue,
+        draftSections: this.asJson(draftSections),
       },
       create: {
         pageSlug,
-        draftSections: draftSections as Prisma.InputJsonValue,
+        draftSections: this.asJson(draftSections),
       },
     });
+
     return this.toLayoutDto(layout);
   }
 
   async publishPage(pageSlug = HOME_PAGE_SLUG) {
     await this.ensureHomePageSeed(pageSlug);
 
-    const layout = await this.prisma.pageLayout.findUniqueOrThrow({ where: { pageSlug } });
-    const draftSections = layout.draftSections as Array<{ sectionKey: HomeSectionKey }>;
+    const layout = await this.prisma.pageLayout.findUniqueOrThrow({
+      where: { pageSlug },
+    });
 
-    const sectionMap = new Map<HomeSectionKey, SectionInstance>();
-    const instances = await this.prisma.sectionInstance.findMany({ where: { pageSlug } });
-    instances.forEach((entry) => sectionMap.set(entry.sectionKey as HomeSectionKey, entry));
+    const draftSections = layout.draftSections as Array<{
+      sectionKey: HomeSectionKey;
+    }>;
+
+    const sectionMap = new Map<HomeSectionKey, SectionInstanceRecord>();
+    const instances = await this.prisma.sectionInstance.findMany({
+      where: { pageSlug },
+    });
+
+    instances.forEach((entry) =>
+      sectionMap.set(entry.sectionKey as HomeSectionKey, entry),
+    );
 
     for (const section of draftSections) {
       const instance = sectionMap.get(section.sectionKey);
       if (!instance) continue;
+
       await this.prisma.sectionInstance.update({
         where: { id: instance.id },
-        data: { publishedProps: instance.draftProps },
+        data: {
+          publishedProps: instance.draftProps as any,
+        },
       });
     }
 
     const publishedSections = draftSections.map((section) => {
       const instance = sectionMap.get(section.sectionKey);
+
       return {
         sectionKey: section.sectionKey,
-        props: (instance?.draftProps ?? defaultSectionProps[section.sectionKey]) as AnySectionProps,
+        props: (instance?.draftProps ??
+          defaultSectionProps[section.sectionKey]) as AnySectionProps,
       };
     });
 
@@ -126,12 +170,12 @@ export class CmsService {
     const publishedPage = await this.prisma.publishedPage.upsert({
       where: { pageSlug },
       update: {
-        snapshot: snapshot as Prisma.InputJsonValue,
+        snapshot: this.asJson(snapshot),
         publishedAt: new Date(snapshot.publishedAt),
       },
       create: {
         pageSlug,
-        snapshot: snapshot as Prisma.InputJsonValue,
+        snapshot: this.asJson(snapshot),
         publishedAt: new Date(snapshot.publishedAt),
       },
     });
@@ -140,14 +184,18 @@ export class CmsService {
   }
 
   async getPublishedPage(pageSlug = HOME_PAGE_SLUG) {
-    const published = await this.prisma.publishedPage.findUnique({ where: { pageSlug } });
+    const published = await this.prisma.publishedPage.findUnique({
+      where: { pageSlug },
+    });
+
     if (!published) {
       return this.publishPage(pageSlug);
     }
+
     return this.toPublishedDto(published);
   }
 
-  private toSectionEntryDto(entry: SectionInstance) {
+  private toSectionEntryDto(entry: SectionInstanceRecord) {
     return {
       id: entry.id,
       pageSlug: entry.pageSlug,
@@ -158,7 +206,7 @@ export class CmsService {
     };
   }
 
-  private toLayoutDto(layout: PageLayout) {
+  private toLayoutDto(layout: PageLayoutRecord) {
     return {
       id: layout.id,
       pageSlug: layout.pageSlug,
@@ -167,7 +215,7 @@ export class CmsService {
     };
   }
 
-  private toPublishedDto(published: PublishedPage) {
+  private toPublishedDto(published: PublishedPageRecord) {
     return {
       id: published.id,
       pageSlug: published.pageSlug,
