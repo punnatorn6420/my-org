@@ -6,6 +6,10 @@ import { Card } from '../components/ui/card';
 export function PopularDestinationsSection(
   props: PopularDestinationsSectionProps = defaultSectionProps['popular-destinations-section'],
 ) {
+  const destinations = Array.isArray(props?.destinations)
+    ? props.destinations
+    : defaultSectionProps['popular-destinations-section'].destinations;
+
   return (
     <section className="bg-white py-12 md:py-14">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6">

@@ -13,10 +13,12 @@ const iconMap: Record<QuickActionSectionProps['items'][number]['icon'], Componen
 };
 
 export function QuickActionSection(props: QuickActionSectionProps = defaultSectionProps['quick-action-section']) {
+  const items = Array.isArray(props?.items) ? props.items : defaultSectionProps['quick-action-section'].items;
+
   return (
     <section className="bg-slate-100 py-8">
       <div className="mx-auto grid max-w-[1200px] gap-4 px-4 sm:grid-cols-2 md:px-6 lg:grid-cols-4">
-        {props.items.map((item) => {
+        {items.map((item) => {
           const Icon = iconMap[item.icon];
           return (
             <Card key={`${item.title}-${item.subtitle}`} className="border border-slate-200 bg-white py-0 shadow-sm">
