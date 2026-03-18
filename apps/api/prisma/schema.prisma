@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SectionInstance {
+  id            String   @id @default(cuid())
+  pageSlug      String
+  sectionKey    String
+  draftProps    Json
+  publishedProps Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([pageSlug, sectionKey])
+  @@index([pageSlug])
+}
+
+model PageLayout {
+  id            String   @id @default(cuid())
+  pageSlug      String   @unique
+  draftSections Json
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+}
+
+model PublishedPage {
+  id          String   @id @default(cuid())
+  pageSlug    String   @unique
+  snapshot    Json
+  publishedAt DateTime
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}

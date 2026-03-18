@@ -1,26 +1,30 @@
-import { FlightDealsSection } from './flight-deals-section';
-import { FooterSection } from './footer-section';
-import { HeaderSection } from './header-section';
-import { HeroBookingSection } from './hero-booking-section';
-import { PopularDestinationsSection } from './popular-destinations-section';
-import { PromoLinksSection } from './promo-links-section';
-import { QuickActionSection } from './quick-action-section';
-import { TravelSimpleSection } from './travel-simple-section';
-import { WhyFlySection } from './why-fly-section';
+import {
+  defaultSectionProps,
+  HOME_SECTION_KEYS,
+  type HomeSectionKey,
+  type SectionPropsMap,
+} from './content-models';
+import { SectionRenderer } from './section-renderer';
 
-// Preview-only composition. Replace mock data with API data in each section as needed.
-export function NokAirHomepagePreview() {
+interface NokAirHomepagePreviewProps {
+  sections?: Array<{ sectionKey: HomeSectionKey; props: SectionPropsMap[HomeSectionKey] }>;
+}
+
+export function NokAirHomepagePreview({ sections }: NokAirHomepagePreviewProps) {
+  const fallbackSections = HOME_SECTION_KEYS.map((sectionKey) => ({
+    sectionKey,
+    props: defaultSectionProps[sectionKey],
+  }));
+
   return (
     <main>
-      <HeaderSection />
-      <HeroBookingSection />
-      <QuickActionSection />
-      <PromoLinksSection />
-      <PopularDestinationsSection />
-      <FlightDealsSection />
-      <WhyFlySection />
-      <TravelSimpleSection />
-      <FooterSection />
+      {(sections ?? fallbackSections).map((section) => (
+        <SectionRenderer
+          key={section.sectionKey}
+          sectionKey={section.sectionKey}
+          props={section.props}
+        />
+      ))}
     </main>
   );
 }
