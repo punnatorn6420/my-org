@@ -27,9 +27,46 @@ import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Calendar } from '../components/ui/calendar';
 import { cn } from '../lib/utils';
 
+function normalizeHeroProps(input?: Partial<HeroBookingSectionProps>): HeroBookingSectionProps {
+  const defaults = defaultSectionProps['hero-booking-section'];
+
+  const safeTabLabels =
+    input?.tabLabels && input.tabLabels.length > 0 ? input.tabLabels : defaults.tabLabels;
+
+  const safePassengerOptions =
+    input?.searchFields?.passengerOptions && input.searchFields.passengerOptions.length > 0
+      ? input.searchFields.passengerOptions
+      : defaults.searchFields.passengerOptions;
+
+  return {
+    eyebrowText: input?.eyebrowText ?? defaults.eyebrowText,
+    title: input?.title ?? defaults.title,
+    subtitle: input?.subtitle ?? defaults.subtitle,
+    heroImageUrl: input?.heroImageUrl ?? defaults.heroImageUrl,
+    bookingTitle: input?.bookingTitle ?? defaults.bookingTitle,
+    bookingDescription: input?.bookingDescription ?? defaults.bookingDescription,
+    tabLabels: safeTabLabels,
+    searchFields: {
+      fromLabel: input?.searchFields?.fromLabel ?? defaults.searchFields.fromLabel,
+      fromDefault: input?.searchFields?.fromDefault ?? defaults.searchFields.fromDefault,
+      toLabel: input?.searchFields?.toLabel ?? defaults.searchFields.toLabel,
+      toDefault: input?.searchFields?.toDefault ?? defaults.searchFields.toDefault,
+      dateLabel: input?.searchFields?.dateLabel ?? defaults.searchFields.dateLabel,
+      datePlaceholder:
+        input?.searchFields?.datePlaceholder ?? defaults.searchFields.datePlaceholder,
+      passengerLabel:
+        input?.searchFields?.passengerLabel ?? defaults.searchFields.passengerLabel,
+      passengerOptions: safePassengerOptions,
+      searchButtonText:
+        input?.searchFields?.searchButtonText ?? defaults.searchFields.searchButtonText,
+    },
+  };
+}
+
 export function HeroBookingSection(
-  props: HeroBookingSectionProps = defaultSectionProps['hero-booking-section'],
+  inputProps: HeroBookingSectionProps = defaultSectionProps['hero-booking-section'],
 ) {
+  const props = normalizeHeroProps(inputProps);
   const [tripType, setTripType] = React.useState<string>(props.tabLabels[0]?.value ?? 'round-trip');
   const [travelDate, setTravelDate] = React.useState<Date | undefined>(new Date());
 

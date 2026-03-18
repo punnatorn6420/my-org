@@ -99,7 +99,7 @@ export default function CmsPage() {
 
   return (
     <div className="min-h-screen bg-slate-100 p-6">
-      <div className="mx-auto grid max-w-[1500px] gap-6 lg:grid-cols-[280px_1fr_1fr]">
+      <div className="mx-auto grid max-w-[1600px] gap-6 lg:grid-cols-[280px_1fr]">
         <aside className="rounded-lg border bg-white p-4">
           <h1 className="text-lg font-semibold">CMS Sections</h1>
           <p className="mt-1 text-sm text-slate-500">Select a section and edit its structured props JSON.</p>
@@ -138,11 +138,15 @@ export default function CmsPage() {
           {jsonError ? <p className="mt-2 text-sm text-red-600">{jsonError}</p> : null}
         </section>
 
-        <section className="rounded-lg border bg-white p-4">
+        <section className="rounded-lg border bg-white p-4 lg:col-span-2">
           <h2 className="text-base font-semibold">Live Section Preview</h2>
-          <p className="mb-3 mt-1 text-sm text-slate-500">Uses the real shared section component from libs/ui.</p>
-          <div className="overflow-hidden rounded border">
-            <SectionRenderer sectionKey={selectedKey} props={previewProps} />
+          <p className="mb-3 mt-1 text-sm text-slate-500">
+            Full-width preview using the real shared section component (closer to production proportions).
+          </p>
+          <div className="overflow-auto rounded border bg-white">
+            <div className="min-w-[1100px]">
+              <SectionRenderer sectionKey={selectedKey} props={previewProps} />
+            </div>
           </div>
         </section>
       </div>
