@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               </div>
 
               <main className="min-w-0 flex-1">
-                <div className="mx-auto max-w-[1400px] px-8 py-10 xl:px-12">
+                <div className="mx-auto max-w-[1400px] px-6 py-4">
                   {children}
                 </div>
               </main>
