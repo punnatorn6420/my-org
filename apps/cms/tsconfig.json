@@ -16,7 +16,11 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
-    "plugins": [{ "name": "next" }]
+    "plugins": [{ "name": "next" }],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": [
     "**/*.ts",
@@ -27,7 +31,7 @@
     "../../apps/cms/.next/types/**/*.ts",
     "../../dist/apps/cms/.next/types/**/*.ts",
 
-    "next-env.d.ts"
+    "next-env.d.ts",
   ],
   "exclude": [
     "node_modules",
