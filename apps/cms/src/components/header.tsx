@@ -1,47 +1,51 @@
-import { Github, Search, Bell, PanelLeft } from 'lucide-react';
+import Link from 'next/link';
+import { Github, MessageCircle, Search, PanelLeft } from 'lucide-react';
 import { Button } from '../../../../libs/ui/src/components/ui/button';
-import { ThemeToggle } from './theme-toggle';
 
 export function AppHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
-      <div className="flex h-16 items-center justify-between px-4 lg:px-6">
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <div className="flex h-[72px] items-center justify-between px-5 lg:px-8">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" className="lg:hidden">
             <PanelLeft className="h-5 w-5" />
           </Button>
 
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-700 text-sm font-bold text-white">
-              C
+            <div className="grid h-7 w-7 place-items-center rounded-md bg-emerald-700 text-[10px] font-bold text-white">
+              ✳
             </div>
-            <span className="text-[2rem] font-bold tracking-tight text-foreground">
-              CMS
+            <span className="text-xl font-bold leading-none tracking-tight text-black">
+              Kirimase
             </span>
           </div>
         </div>
 
-        <div className="hidden flex-1 px-8 lg:flex">
-          <div className="relative ml-auto w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="hidden items-center gap-5 lg:flex">
+          <Link
+            href="#"
+            className="text-[15px] text-slate-600 transition-colors hover:text-slate-900"
+          >
+            Contact ↗
+          </Link>
+
+          <div className="relative w-[320px]">
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <input
               placeholder="Search documentation..."
-              className="h-11 w-full rounded-xl border border-border bg-muted/40 pl-10 pr-16 text-sm text-foreground outline-none transition focus:border-foreground/20"
+              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-20 text-sm text-slate-700 outline-none transition focus:border-slate-300"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-border bg-background px-2 py-0.5 text-[11px] text-muted-foreground">
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-500">
               CTRL K
             </span>
           </div>
-        </div>
 
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="h-10 w-10">
             <Github className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon">
-            <Bell className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="h-10 w-10">
+            <MessageCircle className="h-5 w-5" />
           </Button>
-          <ThemeToggle />
         </div>
       </div>
     </header>
