@@ -42,6 +42,7 @@ export default function SectionsPage() {
   const [jsonDraft, setJsonDraft] = useState('');
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [status, setStatus] = useState('Loading...');
+  const [previewScale, setPreviewScale] = useState(0.72);
 
   useEffect(() => {
     if (!isHomeSectionKey(querySection)) {
@@ -182,11 +183,39 @@ export default function SectionsPage() {
         <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
           <h2 className="text-base font-semibold">Live Section Preview</h2>
           <p className="mb-3 mt-1 text-sm text-muted-foreground">
-            ย่อสเกล preview ลงเพื่อให้เห็น section ครบในกรอบเดียว
+            ปรับสเกล preview ได้ (ย่อทั้งข้อความและไอคอนพร้อมกัน)
           </p>
 
+          <div className="mb-3 flex flex-wrap gap-2">
+            {[0.6, 0.72, 0.85, 1].map((scale) => {
+              const isActive = previewScale === scale;
+
+              return (
+                <button
+                  key={scale}
+                  type="button"
+                  onClick={() => setPreviewScale(scale)}
+                  className={`rounded-md border px-3 py-1 text-xs font-medium ${
+                    isActive
+                      ? 'border-slate-900 bg-slate-900 text-white'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {Math.round(scale * 100)}%
+                </button>
+              );
+            })}
+          </div>
+
           <div className="overflow-auto rounded-xl border bg-white p-3">
-            <div className="min-w-[900px] origin-top-left scale-[0.85]">
+            <div
+              className="origin-top-left"
+              style={{
+                minWidth: '1100px',
+                transform: `scale(${previewScale})`,
+                width: `${100 / previewScale}%`,
+              }}
+            >
               <SectionRenderer sectionKey={selectedKey} props={previewProps} />
             </div>
           </div>
