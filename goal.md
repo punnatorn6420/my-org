@@ -27,16 +27,16 @@ Use Nx monorepo.
 Create this structure conceptually:
 
 apps/
-  web
-  cms
-  api
+web
+cms
+api
 
 libs/
-  ui
-  sections
-  renderer
-  schema
-  utils
+ui
+sections
+renderer
+schema
+utils
 Tech stack
 
 Use these technologies:
@@ -148,6 +148,7 @@ shared UI primitives/wrappers should live in libs/ui
 Do not duplicate the same section component separately for web and cms.
 
 Core concepts to implement
+
 1. SectionType
 
 Use these initial section types:
@@ -167,12 +168,11 @@ Create a shared type for them.
 Example idea:
 
 export type SectionType =
-  | 'hero'
-  | 'search_flight'
-  | 'promo_banner'
-  | 'category_grid'
-  | 'popular_services';
-2. SectionDefinition
+| 'hero'
+| 'search_flight'
+| 'promo_banner'
+| 'category_grid'
+| 'popular_services'; 2. SectionDefinition
 
 A SectionDefinition represents a developer-defined template for a section.
 
@@ -189,11 +189,10 @@ Create a shared structure for this.
 Example idea:
 
 export interface SectionDefinition {
-  type: SectionType;
-  label: string;
-  defaultProps: Record<string, any>;
-}
-3. SectionInstance
+type: SectionType;
+label: string;
+defaultProps: Record<string, any>;
+} 3. SectionInstance
 
 A SectionInstance is a real editable section created by admin.
 
@@ -212,13 +211,12 @@ status
 Example:
 
 export interface SectionInstance {
-  id: string;
-  type: SectionType;
-  name: string;
-  props: Record<string, any>;
-  status: 'draft' | 'published';
-}
-4. PageLayout
+id: string;
+type: SectionType;
+name: string;
+props: Record<string, any>;
+status: 'draft' | 'published';
+} 4. PageLayout
 
 The Home page layout should include:
 
@@ -231,11 +229,10 @@ rows
 Example:
 
 export interface PageLayout {
-  id: string;
-  slug: 'home';
-  rows: LayoutRow[];
-}
-5. LayoutRow
+id: string;
+slug: 'home';
+rows: LayoutRow[];
+} 5. LayoutRow
 
 Each row should include:
 
@@ -258,11 +255,10 @@ Example:
 export type RowTemplate = '12' | '6-6' | '4-4-4';
 
 export interface LayoutRow {
-  id: string;
-  template: RowTemplate;
-  columns: LayoutColumn[];
-}
-6. LayoutColumn
+id: string;
+template: RowTemplate;
+columns: LayoutColumn[];
+} 6. LayoutColumn
 
 Each column should include:
 
@@ -275,9 +271,9 @@ optional sectionInstanceId
 Example:
 
 export interface LayoutColumn {
-  id: string;
-  span: number;
-  sectionInstanceId?: string;
+id: string;
+span: number;
+sectionInstanceId?: string;
 }
 Shared libraries requirements
 libs/ui

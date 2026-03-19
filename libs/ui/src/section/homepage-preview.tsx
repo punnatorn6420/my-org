@@ -7,10 +7,15 @@ import {
 import { SectionRenderer } from './section-renderer';
 
 interface NokAirHomepagePreviewProps {
-  sections?: Array<{ sectionKey: HomeSectionKey; props: SectionPropsMap[HomeSectionKey] }>;
+  sections?: Array<{
+    sectionKey: HomeSectionKey;
+    props: SectionPropsMap[HomeSectionKey];
+  }>;
 }
 
-export function NokAirHomepagePreview({ sections }: NokAirHomepagePreviewProps) {
+export function NokAirHomepagePreview({
+  sections,
+}: NokAirHomepagePreviewProps) {
   const fallbackSections = HOME_SECTION_KEYS.map((sectionKey) => ({
     sectionKey,
     props: defaultSectionProps[sectionKey],

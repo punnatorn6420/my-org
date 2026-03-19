@@ -26,8 +26,14 @@ export interface HeaderSectionProps {
 export interface FooterSectionProps {
   logoText: string;
   companyText: string;
-  footerGroups: Array<{ title: string; links: Array<{ label: string; href: string }> }>;
-  socialLinks: Array<{ platform: 'facebook' | 'instagram' | 'twitter'; href: string }>;
+  footerGroups: Array<{
+    title: string;
+    links: Array<{ label: string; href: string }>;
+  }>;
+  socialLinks: Array<{
+    platform: 'facebook' | 'instagram' | 'twitter';
+    href: string;
+  }>;
   copyrightText: string;
   allianceText: string;
 }
@@ -39,7 +45,10 @@ export interface HeroBookingSectionProps {
   heroImageUrl: string;
   bookingTitle: string;
   bookingDescription: string;
-  tabLabels: Array<{ value: 'round-trip' | 'one-way' | 'multi-city'; label: string }>;
+  tabLabels: Array<{
+    value: 'round-trip' | 'one-way' | 'multi-city';
+    label: string;
+  }>;
   searchFields: {
     fromLabel: string;
     fromDefault: string;
@@ -54,11 +63,22 @@ export interface HeroBookingSectionProps {
 }
 
 export interface QuickActionSectionProps {
-  items: Array<{ icon: 'circle-check' | 'timer' | 'briefcase' | 'shield-check'; title: string; subtitle: string; href: string }>;
+  items: Array<{
+    icon: 'circle-check' | 'timer' | 'briefcase' | 'shield-check';
+    title: string;
+    subtitle: string;
+    href: string;
+  }>;
 }
 
 export interface PromoLinksSectionProps {
-  items: Array<{ title: string; description: string; linkLabel: string; linkHref: string; imageUrl: string }>;
+  items: Array<{
+    title: string;
+    description: string;
+    linkLabel: string;
+    linkHref: string;
+    imageUrl: string;
+  }>;
 }
 
 export interface PopularDestinationsSectionProps {
@@ -69,12 +89,22 @@ export interface PopularDestinationsSectionProps {
 
 export interface FlightDealsSectionProps {
   title: string;
-  deals: Array<{ from: string; to: string; price: string; buttonText: string; buttonHref: string }>;
+  deals: Array<{
+    from: string;
+    to: string;
+    price: string;
+    buttonText: string;
+    buttonHref: string;
+  }>;
 }
 
 export interface WhyFlySectionProps {
   title: string;
-  points: Array<{ icon: 'check' | 'shield-check' | 'globe'; title: string; description: string }>;
+  points: Array<{
+    icon: 'check' | 'shield-check' | 'globe';
+    title: string;
+    description: string;
+  }>;
   imageUrl: string;
   imageAlt: string;
   badgeText: string;
@@ -83,7 +113,11 @@ export interface WhyFlySectionProps {
 export interface TravelSimpleSectionProps {
   title: string;
   description: string;
-  appButtons: Array<{ platform: 'apple' | 'google-play'; label: string; href: string }>;
+  appButtons: Array<{
+    platform: 'apple' | 'google-play';
+    label: string;
+    href: string;
+  }>;
 }
 
 export type SectionPropsMap = {
@@ -159,7 +193,8 @@ export const defaultSectionProps: SectionPropsMap = {
       { platform: 'instagram', href: '#' },
       { platform: 'twitter', href: '#' },
     ],
-    copyrightText: '© 2026 Nok Airlines Public Company Limited. All rights reserved.',
+    copyrightText:
+      '© 2026 Nok Airlines Public Company Limited. All rights reserved.',
     allianceText: 'Official Member of Premium Alliance',
   },
   'hero-booking-section': {
@@ -170,7 +205,8 @@ export const defaultSectionProps: SectionPropsMap = {
     heroImageUrl:
       'https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=1800&q=80',
     bookingTitle: 'Book your next flight',
-    bookingDescription: 'Select your itinerary and travel details to get the best fares.',
+    bookingDescription:
+      'Select your itinerary and travel details to get the best fares.',
     tabLabels: [
       { value: 'round-trip', label: 'Round Trip' },
       { value: 'one-way', label: 'One Way' },
@@ -194,34 +230,60 @@ export const defaultSectionProps: SectionPropsMap = {
   },
   'quick-action-section': {
     items: [
-      { icon: 'circle-check', title: 'Check-in', subtitle: 'Quick & easy', href: '#' },
-      { icon: 'timer', title: 'Flight Status', subtitle: 'Real-time updates', href: '#' },
-      { icon: 'briefcase', title: 'Baggage', subtitle: 'Add extra weight', href: '#' },
-      { icon: 'shield-check', title: 'Nok Smile Plus', subtitle: 'Member benefits', href: '#' },
+      {
+        icon: 'circle-check',
+        title: 'Check-in',
+        subtitle: 'Quick & easy',
+        href: '#',
+      },
+      {
+        icon: 'timer',
+        title: 'Flight Status',
+        subtitle: 'Real-time updates',
+        href: '#',
+      },
+      {
+        icon: 'briefcase',
+        title: 'Baggage',
+        subtitle: 'Add extra weight',
+        href: '#',
+      },
+      {
+        icon: 'shield-check',
+        title: 'Nok Smile Plus',
+        subtitle: 'Member benefits',
+        href: '#',
+      },
     ],
   },
   'promo-links-section': {
     items: [
       {
         title: 'Special Fares',
-        description: 'Unbeatable prices on domestic and international routes. Book now and save big.',
+        description:
+          'Unbeatable prices on domestic and international routes. Book now and save big.',
         linkLabel: 'Learn More',
         linkHref: '#',
-        imageUrl: 'https://images.unsplash.com/photo-1503220317375-aaad61436b1b?auto=format&fit=crop&w=900&q=80',
+        imageUrl:
+          'https://images.unsplash.com/photo-1503220317375-aaad61436b1b?auto=format&fit=crop&w=900&q=80',
       },
       {
         title: 'Travel Add-ons',
-        description: 'Customize your journey with seat selection, premium meals, and lounge access.',
+        description:
+          'Customize your journey with seat selection, premium meals, and lounge access.',
         linkLabel: 'Explore Add-ons',
         linkHref: '#',
-        imageUrl: 'https://images.unsplash.com/photo-1581458442855-09955ecf6f5a?auto=format&fit=crop&w=900&q=80',
+        imageUrl:
+          'https://images.unsplash.com/photo-1581458442855-09955ecf6f5a?auto=format&fit=crop&w=900&q=80',
       },
       {
         title: 'Nok Fan Club',
-        description: 'Join our loyalty program to earn points and enjoy priority privileges.',
+        description:
+          'Join our loyalty program to earn points and enjoy priority privileges.',
         linkLabel: 'Join Now',
         linkHref: '#',
-        imageUrl: 'https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=900&q=80',
+        imageUrl:
+          'https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=900&q=80',
       },
     ],
   },
@@ -232,32 +294,60 @@ export const defaultSectionProps: SectionPropsMap = {
       {
         city: 'Phuket',
         tag: 'Island Bliss',
-        imageUrl: 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=900&q=80',
+        imageUrl:
+          'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=900&q=80',
       },
       {
         city: 'Chiang Rai',
         tag: 'Northern Heritage',
-        imageUrl: 'https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?auto=format&fit=crop&w=900&q=80',
+        imageUrl:
+          'https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?auto=format&fit=crop&w=900&q=80',
       },
       {
         city: 'Ho Chi Minh',
         tag: 'City Life',
-        imageUrl: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=900&q=80',
+        imageUrl:
+          'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=900&q=80',
       },
       {
         city: 'Bangkok',
         tag: 'Metropolis',
-        imageUrl: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=900&q=80',
+        imageUrl:
+          'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=900&q=80',
       },
     ],
   },
   'flight-deals-section': {
     title: 'Exclusive Flight Deals',
     deals: [
-      { from: 'Bangkok', to: 'Phuket', price: 'THB 890', buttonText: 'Book Now', buttonHref: '#' },
-      { from: 'Bangkok', to: 'Chiang Mai', price: 'THB 1,050', buttonText: 'Book Now', buttonHref: '#' },
-      { from: 'Bangkok', to: 'Singapore', price: 'THB 2,490', buttonText: 'Book Now', buttonHref: '#' },
-      { from: 'Chiang Mai', to: 'Bangkok', price: 'THB 1,120', buttonText: 'Book Now', buttonHref: '#' },
+      {
+        from: 'Bangkok',
+        to: 'Phuket',
+        price: 'THB 890',
+        buttonText: 'Book Now',
+        buttonHref: '#',
+      },
+      {
+        from: 'Bangkok',
+        to: 'Chiang Mai',
+        price: 'THB 1,050',
+        buttonText: 'Book Now',
+        buttonHref: '#',
+      },
+      {
+        from: 'Bangkok',
+        to: 'Singapore',
+        price: 'THB 2,490',
+        buttonText: 'Book Now',
+        buttonHref: '#',
+      },
+      {
+        from: 'Chiang Mai',
+        to: 'Bangkok',
+        price: 'THB 1,120',
+        buttonText: 'Book Now',
+        buttonHref: '#',
+      },
     ],
   },
   'why-fly-section': {
@@ -265,21 +355,25 @@ export const defaultSectionProps: SectionPropsMap = {
     points: [
       {
         title: 'Premium On-board Experience',
-        description: 'Spacious seating and a curated menu tailored for every palate.',
+        description:
+          'Spacious seating and a curated menu tailored for every palate.',
         icon: 'check',
       },
       {
         title: 'Reliability & Punctuality',
-        description: 'Industry-leading on-time performance ensures your trip stays on plan.',
+        description:
+          'Industry-leading on-time performance ensures your trip stays on plan.',
         icon: 'shield-check',
       },
       {
         title: 'Vast Network',
-        description: 'Connecting major cities and hidden gems across Southeast Asia with ease.',
+        description:
+          'Connecting major cities and hidden gems across Southeast Asia with ease.',
         icon: 'globe',
       },
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?auto=format&fit=crop&w=1200&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?auto=format&fit=crop&w=1200&q=80',
     imageAlt: 'Premium in-flight quality service',
     badgeText: 'Quality Service',
   },

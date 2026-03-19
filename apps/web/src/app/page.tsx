@@ -1,6 +1,13 @@
-import { HOME_PAGE_SLUG, NokAirHomepagePreview, type PublishedPageSnapshot } from '@my-org/ui';
+import {
+  HOME_PAGE_SLUG,
+  NokAirHomepagePreview,
+  type PublishedPageSnapshot,
+} from '@my-org/ui';
 
-const API_URL = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+const API_URL =
+  process.env.API_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  'http://localhost:3000/api';
 
 async function getPublishedHomePage(): Promise<PublishedPageSnapshot> {
   const response = await fetch(`${API_URL}/public/pages/${HOME_PAGE_SLUG}`, {

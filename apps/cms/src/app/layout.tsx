@@ -6,7 +6,8 @@ import { AppToc } from '@/components/toc';
 
 export const metadata = {
   title: 'Kirimase-style CMS',
-  description: 'CMS shell matching Kirimase docs style with shadcn/ui + Tailwind',
+  description:
+    'CMS shell matching Kirimase docs style with shadcn/ui + Tailwind',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

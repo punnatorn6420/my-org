@@ -66,12 +66,8 @@ export function AppSidebar() {
   };
 
   return (
-    <aside className="flex h-full flex-col    bg-[#f8faf8]">
-      <nav
-        className="flex-1 overflow-y-aut
-
-o px-6 py-5"
-      >
+    <aside className="flex h-full flex-col bg-[#f8faf8]">
+      <nav className="flex-1 overflow-y-auto px-6 py-5">
         <div className="space-y-2">
           {nav.map((item) => {
             if (!isNavGroup(item)) {
