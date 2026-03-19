@@ -2,33 +2,28 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { ChevronDown, ChevronRight, SunMedium } from 'lucide-react';
+import { HOME_SECTION_KEYS } from '../../../../libs/ui/src/section/content-models';
 import { cn } from '../../../../libs/ui/src/lib/utils';
 
 type NavLink = { title: string; href: string };
 type NavGroup = { title: string; items: NavLink[] };
 
+function formatSectionTitle(sectionKey: string) {
+  return sectionKey
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 const nav: Array<NavLink | NavGroup> = [
-  { title: 'Introduction', href: '/' },
-  { title: 'The Tutorial', href: '/tutorial' },
-  { title: 'Getting Started', href: '/getting-started' },
+  { title: 'Layout Manager', href: '/layout-builder' },
   {
-    title: 'Commands',
-    items: [
-      { title: 'Init', href: '/commands/init' },
-      { title: 'Add', href: '/commands/add' },
-      { title: 'Generate', href: '/commands/generate' },
-    ],
-  },
-  {
-    title: 'Packages',
-    items: [
-      { title: 'ORM', href: '/packages/orm' },
-      { title: 'Authentication', href: '/packages/authentication' },
-      { title: 'Component Library', href: '/packages/component-library' },
-      { title: 'Miscellaneous', href: '/packages/miscellaneous' },
-    ],
+    title: 'Homepage CMS Sections',
+    items: HOME_SECTION_KEYS.map((sectionKey) => ({
+      title: formatSectionTitle(sectionKey),
+      href: `/sections?section=${sectionKey}`,
+    })),
   },
 ];
 
@@ -38,15 +33,21 @@ function isNavGroup(item: NavLink | NavGroup): item is NavGroup {
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const activeSection = searchParams.get('section');
 
   const defaultOpenGroups = React.useMemo(() => {
     return nav.reduce<Record<string, boolean>>((acc, item) => {
       if (isNavGroup(item)) {
-        acc[item.title] = item.items.some((child) => child.href === pathname);
+        acc[item.title] = item.items.some(
+          (child) =>
+            pathname === '/sections' &&
+            child.href === `/sections?section=${activeSection}`,
+        );
       }
       return acc;
     }, {});
-  }, [pathname]);
+  }, [activeSection, pathname]);
 
   const [openGroups, setOpenGroups] =
     React.useState<Record<string, boolean>>(defaultOpenGroups);
@@ -91,7 +92,9 @@ export function AppSidebar() {
 
             const isOpen = openGroups[item.title];
             const hasActiveChild = item.items.some(
-              (child) => child.href === pathname,
+              (child) =>
+                pathname === '/sections' &&
+                child.href === `/sections?section=${activeSection}`,
             );
 
             return (
@@ -128,7 +131,10 @@ export function AppSidebar() {
                     <div className="ml-4 mt-2 border-l border-slate-200 pl-4">
                       <div className="space-y-1 pb-1">
                         {item.items.map((child) => {
-                          const active = pathname === child.href;
+                          const childSection = child.href.split('section=')[1];
+                          const active =
+                            pathname === '/sections' &&
+                            activeSection === childSection;
 
                           return (
                             <Link
