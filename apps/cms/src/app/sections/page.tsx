@@ -10,8 +10,21 @@ import {
   type HomeSectionKey,
 } from '../../../../../libs/ui/src/section/content-models';
 import { SectionRenderer } from '../../../../../libs/ui/src/section/section-renderer';
+import {
+  SectionPreviewFrame,
+  type PreviewPreset,
+} from './section-preview-frame';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+
+const PREVIEW_PRESETS: PreviewPreset[] = [
+  { label: 'Mobile', width: 330, height: 760 },
+  { label: 'Tablet', width: 768, height: 1024 },
+  { label: 'Laptop', width: 1280, height: 900 },
+  { label: 'Desktop', width: 1440, height: 900 },
+  { label: 'Full HD', width: 1920, height: 1080 },
+  { label: 'QHD', width: 2560, height: 1440 },
+];
 
 interface SectionEntry {
   id: string;
@@ -42,7 +55,7 @@ export default function SectionsPage() {
   const [jsonDraft, setJsonDraft] = useState('');
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [status, setStatus] = useState('Loading...');
-  const [previewScale, setPreviewScale] = useState(0.6);
+  const [selectedPresetLabel, setSelectedPresetLabel] = useState('Laptop');
 
   useEffect(() => {
     if (!isHomeSectionKey(querySection)) {
@@ -130,6 +143,10 @@ export default function SectionsPage() {
     await loadEntries();
   }
 
+  const selectedPreset =
+    PREVIEW_PRESETS.find((preset) => preset.label === selectedPresetLabel) ??
+    PREVIEW_PRESETS[2];
+
   const parsedPreview = tryParseDraft(jsonDraft);
   const previewProps =
     parsedPreview ??
@@ -145,39 +162,37 @@ export default function SectionsPage() {
       </div>
 
       <div className="grid gap-2 ">
-        <section className="rounded-2xl space-y-2">
-          <h2 className="text-base font-semibold">Live Section Preview</h2>
+        <section className="rounded-2xl space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-base font-semibold">Live Section Preview</h2>
+            <p className="text-xs text-slate-600">
+              Current size: {selectedPreset.width} x {selectedPreset.height}
+            </p>
+          </div>
+
           <div className="flex flex-wrap gap-2">
-            {[0.6, 0.72].map((scale) => {
-              const isActive = previewScale === scale;
+            {PREVIEW_PRESETS.map((preset) => {
+              const isActive = selectedPreset.label === preset.label;
               return (
                 <button
-                  key={scale}
+                  key={preset.label}
                   type="button"
-                  onClick={() => setPreviewScale(scale)}
+                  onClick={() => setSelectedPresetLabel(preset.label)}
                   className={`rounded-md border px-3 py-1 text-xs font-medium ${
                     isActive
                       ? 'border-slate-900 bg-slate-900 text-white'
                       : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  {Math.round(scale * 100)}%
+                  {preset.label}
                 </button>
               );
             })}
           </div>
 
-          <div className="overflow-auto rounded-sm border-4 border-amber-500">
-            <div
-              className="origin-top-left"
-              style={{
-                transform: `scale(${previewScale})`,
-                width: `${100 / previewScale}%`,
-              }}
-            >
-              <SectionRenderer sectionKey={selectedKey} props={previewProps} />
-            </div>
-          </div>
+          <SectionPreviewFrame preset={selectedPreset}>
+            <SectionRenderer sectionKey={selectedKey} props={previewProps} />
+          </SectionPreviewFrame>
         </section>
         <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
           <h2 className="text-base font-semibold">Draft JSON</h2>
