@@ -1,8 +1,8 @@
 'use client';
 
-import { Badge } from '@my-org/ui/components/ui/badge';
-import { Button } from '@my-org/ui/components/ui/button';
-import { Input } from '@my-org/ui/components/ui/input';
+import { Badge } from '../../../../../../libs/ui/src/components/ui/badge';
+import { Button } from '../../../../../../libs/ui/src/components/ui/button';
+import { Input } from '../../../../../../libs/ui/src/components/ui/input';
 import type {
   LayoutColumn,
   SectionInstanceOption,

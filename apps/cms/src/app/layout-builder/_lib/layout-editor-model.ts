@@ -2,7 +2,7 @@ import {
   HOME_PAGE_SLUG,
   type AnySectionProps,
   type HomeSectionKey,
-} from '@my-org/ui/section/content-models';
+} from '../../../../../../libs/ui/src/section/content-models';
 
 export const GRID_COLUMNS = 12;
 export const LAYOUT_STORAGE_KEY = 'cms.home-layout-draft.v1';

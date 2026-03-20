@@ -1,7 +1,12 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@my-org/ui/components/ui/card';
-import { Button } from '@my-org/ui/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '../../../../../../libs/ui/src/components/ui/card';
+import { Button } from '../../../../../../libs/ui/src/components/ui/button';
 import type {
   LayoutRow,
   SectionInstanceOption,
@@ -48,13 +53,28 @@ export function LayoutRowCard({
           <Button type="button" variant="outline" size="sm" onClick={onMoveUp}>
             Up
           </Button>
-          <Button type="button" variant="outline" size="sm" onClick={onMoveDown}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onMoveDown}
+          >
             Down
           </Button>
-          <Button type="button" variant="outline" size="sm" onClick={onDuplicate}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onDuplicate}
+          >
             Duplicate
           </Button>
-          <Button type="button" variant="destructive" size="sm" onClick={onDelete}>
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            onClick={onDelete}
+          >
             Delete
           </Button>
         </div>
@@ -62,7 +82,12 @@ export function LayoutRowCard({
       <CardContent className="space-y-4">
         <div className="grid grid-cols-12 gap-3 rounded-lg border border-dashed border-border p-3">
           {row.columns.map((column) => (
-            <div key={column.id} style={{ gridColumn: `span ${column.span} / span ${column.span}` }}>
+            <div
+              key={column.id}
+              style={{
+                gridColumn: `span ${column.span} / span ${column.span}`,
+              }}
+            >
               <LayoutColumnSlot
                 column={column}
                 options={sectionOptions}
@@ -74,15 +99,24 @@ export function LayoutRowCard({
                 canRemove={row.columns.length > 1}
                 onRemove={() => onRemoveColumn(column.id)}
                 onUpdateSpan={(span) => onUpdateColumnSpan(column.id, span)}
-                onAssignSection={(sectionId) => onAssignSection(column.id, sectionId)}
+                onAssignSection={(sectionId) =>
+                  onAssignSection(column.id, sectionId)
+                }
               />
             </div>
           ))}
         </div>
 
         <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">Current total span: {total}/12</p>
-          <Button type="button" variant="secondary" size="sm" onClick={onAddColumn}>
+          <p className="text-xs text-muted-foreground">
+            Current total span: {total}/12
+          </p>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={onAddColumn}
+          >
             Add column
           </Button>
         </div>

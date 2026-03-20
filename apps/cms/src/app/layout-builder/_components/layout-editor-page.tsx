@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button } from '@my-org/ui/components/ui/button';
+import { Button } from '../../../../../../libs/ui/src/components/ui/button';
 import {
   DEFAULT_PAGE_SLUG,
   LAYOUT_STORAGE_KEY,
@@ -19,7 +19,7 @@ import { LayoutPreviewGrid } from './layout-preview-grid';
 import type {
   AnySectionProps,
   HomeSectionKey,
-} from '@my-org/ui/section/content-models';
+} from '../../../../../../libs/ui/src/section/content-models';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
 
@@ -29,7 +29,11 @@ interface SectionEntry {
   draftProps: AnySectionProps;
 }
 
-function updateRow(rows: LayoutRow[], rowId: string, updater: (row: LayoutRow) => LayoutRow): LayoutRow[] {
+function updateRow(
+  rows: LayoutRow[],
+  rowId: string,
+  updater: (row: LayoutRow) => LayoutRow,
+): LayoutRow[] {
   return rows.map((row) => (row.id === rowId ? updater(row) : row));
 }
 
@@ -62,7 +66,9 @@ export function LayoutEditorPage() {
         ? ((await sectionsResponse.json()) as { entries?: SectionEntry[] })
         : { entries: [] };
 
-      const sectionOptions: SectionInstanceOption[] = (sectionPayload.entries ?? []).map((entry) => ({
+      const sectionOptions: SectionInstanceOption[] = (
+        sectionPayload.entries ?? []
+      ).map((entry) => ({
         id: entry.id,
         sectionKey: entry.sectionKey,
         label: formatSectionLabel(entry.sectionKey),
@@ -114,7 +120,9 @@ export function LayoutEditorPage() {
   }
 
   function updateColumnSpan(rowId: string, columnId: string, span: number) {
-    const safeSpan = Number.isFinite(span) ? Math.max(1, Math.min(12, span)) : 1;
+    const safeSpan = Number.isFinite(span)
+      ? Math.max(1, Math.min(12, span))
+      : 1;
 
     setRows((prev) =>
       updateRow(prev, rowId, (row) => ({
@@ -126,7 +134,11 @@ export function LayoutEditorPage() {
     );
   }
 
-  function assignSection(rowId: string, columnId: string, sectionInstanceId: string | undefined) {
+  function assignSection(
+    rowId: string,
+    columnId: string,
+    sectionInstanceId: string | undefined,
+  ) {
     setRows((prev) =>
       updateRow(prev, rowId, (row) => ({
         ...row,
@@ -178,7 +190,10 @@ export function LayoutEditorPage() {
       const source = prev[index];
       const duplicated: LayoutRow = {
         id: createId('row'),
-        columns: source.columns.map((column) => ({ ...column, id: createId('col') })),
+        columns: source.columns.map((column) => ({
+          ...column,
+          id: createId('col'),
+        })),
       };
 
       const copy = [...prev];
@@ -213,15 +228,22 @@ export function LayoutEditorPage() {
         .filter((value): value is HomeSectionKey => Boolean(value))
         .map((sectionKey) => ({ sectionKey }));
 
-      const response = await fetch(`${API_URL}/cms/layout/${DEFAULT_PAGE_SLUG}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ draftSections, draftRows: rows }),
-      });
+      const response = await fetch(
+        `${API_URL}/cms/layout/${DEFAULT_PAGE_SLUG}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ draftSections, draftRows: rows }),
+        },
+      );
 
       localStorage.setItem(
         LAYOUT_STORAGE_KEY,
-        JSON.stringify({ pageSlug: DEFAULT_PAGE_SLUG, rows, updatedAt: new Date().toISOString() }),
+        JSON.stringify({
+          pageSlug: DEFAULT_PAGE_SLUG,
+          rows,
+          updatedAt: new Date().toISOString(),
+        }),
       );
 
       if (!response.ok) {
@@ -233,7 +255,11 @@ export function LayoutEditorPage() {
     } catch {
       localStorage.setItem(
         LAYOUT_STORAGE_KEY,
-        JSON.stringify({ pageSlug: DEFAULT_PAGE_SLUG, rows, updatedAt: new Date().toISOString() }),
+        JSON.stringify({
+          pageSlug: DEFAULT_PAGE_SLUG,
+          rows,
+          updatedAt: new Date().toISOString(),
+        }),
       );
       setStatus('Draft saved locally. API request failed.');
     } finally {
@@ -249,9 +275,12 @@ export function LayoutEditorPage() {
 
     setIsBusy(true);
     try {
-      const response = await fetch(`${API_URL}/cms/publish/${DEFAULT_PAGE_SLUG}`, {
-        method: 'POST',
-      });
+      const response = await fetch(
+        `${API_URL}/cms/publish/${DEFAULT_PAGE_SLUG}`,
+        {
+          method: 'POST',
+        },
+      );
 
       setStatus(response.ok ? 'Layout published.' : 'Publish failed on API.');
     } catch {
@@ -266,17 +295,29 @@ export function LayoutEditorPage() {
       <header className="space-y-3">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Home Layout Editor</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Home Layout Editor
+            </h1>
             <p className="text-sm text-muted-foreground">
-              Build homepage layout using structured rows, columns, and 12-column span rules.
+              Build homepage layout using structured rows, columns, and
+              12-column span rules.
             </p>
           </div>
 
           <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={() => void saveDraft()} disabled={isBusy}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void saveDraft()}
+              disabled={isBusy}
+            >
               Save Draft
             </Button>
-            <Button type="button" onClick={() => void publishLayout()} disabled={isBusy}>
+            <Button
+              type="button"
+              onClick={() => void publishLayout()}
+              disabled={isBusy}
+            >
               Publish
             </Button>
           </div>
@@ -314,8 +355,12 @@ export function LayoutEditorPage() {
                 onDelete={() => deleteRow(row.id)}
                 onAddColumn={() => addColumn(row.id)}
                 onRemoveColumn={(columnId) => removeColumn(row.id, columnId)}
-                onUpdateColumnSpan={(columnId, span) => updateColumnSpan(row.id, columnId, span)}
-                onAssignSection={(columnId, sectionId) => assignSection(row.id, columnId, sectionId)}
+                onUpdateColumnSpan={(columnId, span) =>
+                  updateColumnSpan(row.id, columnId, span)
+                }
+                onAssignSection={(columnId, sectionId) =>
+                  assignSection(row.id, columnId, sectionId)
+                }
               />
             ))}
           </div>

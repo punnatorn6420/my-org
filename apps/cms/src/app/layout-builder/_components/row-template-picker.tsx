@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from '@my-org/ui/components/ui/button';
-import { Input } from '@my-org/ui/components/ui/input';
-import { Label } from '@my-org/ui/components/ui/label';
+import { Button } from '../../../../../../libs/ui/src/components/ui/button';
+import { Input } from '../../../../../../libs/ui/src/components/ui/input';
+import { Label } from '../../../../../../libs/ui/src/components/ui/label';
 import { useMemo, useState } from 'react';
 import { ROW_TEMPLATES } from '../_lib/layout-editor-model';
 
@@ -66,7 +66,9 @@ export function RowTemplatePicker({ onPickTemplate }: RowTemplatePickerProps) {
         >
           Add custom row
         </Button>
-        <p className="text-xs text-muted-foreground">Total: {parsedCustom.total}/12</p>
+        <p className="text-xs text-muted-foreground">
+          Total: {parsedCustom.total}/12
+        </p>
       </div>
     </div>
   );

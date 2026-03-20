@@ -6,7 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@my-org/ui/components/ui/select';
+} from '../../../../../../libs/ui/src/components/ui/select';
 import type { SectionInstanceOption } from '../_lib/layout-editor-model';
 
 interface SectionAssignmentSelectProps {
@@ -23,7 +23,9 @@ export function SectionAssignmentSelect({
   return (
     <Select
       value={value ?? '__none'}
-      onValueChange={(next) => onValueChange(next === '__none' ? undefined : next)}
+      onValueChange={(next) =>
+        onValueChange(next === '__none' ? undefined : next)
+      }
     >
       <SelectTrigger className="h-8">
         <SelectValue placeholder="Assign section" />
