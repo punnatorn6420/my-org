@@ -146,9 +146,8 @@ export default function SectionsPage() {
 
       <div className="grid gap-2 ">
         <section className="rounded-2xl space-y-2">
-          <h2 className="text-base font-semibold">Live Section Preview</h2>
           <div className="flex flex-wrap gap-2">
-            {[0.6, 0.72].map((scale) => {
+            {[0.36, 0.48, 0.6, 0.72, 0.84, 1].map((scale) => {
               const isActive = previewScale === scale;
               return (
                 <button
@@ -179,38 +178,53 @@ export default function SectionsPage() {
             </div>
           </div>
         </section>
-        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <h2 className="text-base font-semibold">Draft JSON</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            ปรับ JSON ของ section นี้ แล้วกดบันทึก Draft หรือ Publish ได้ทันที
-          </p>
+        <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div className="mb-4">
+            <h2 className="text-base font-semibold text-foreground">
+              Draft JSON
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              ปรับ JSON ของ section นี้ แล้วกดบันทึก Draft หรือ Publish ได้ทันที
+            </p>
+          </div>
 
-          <textarea
-            value={jsonDraft}
-            onChange={(event) => setJsonDraft(event.target.value)}
-            className="mt-4 h-[560px] w-full rounded-lg border bg-slate-950 p-3 font-mono text-xs text-slate-100"
-          />
+          <div className="rounded-2xl bg-neutral-100 p-6 dark:bg-neutral-900/60">
+            <textarea
+              value={jsonDraft}
+              onChange={(event) => setJsonDraft(event.target.value)}
+              spellCheck={false}
+              className="
+        min-h-[560px] w-full resize-none border-0 bg-transparent p-0
+        font-mono text-sm text-amber-700
+        outline-none ring-0 placeholder:text-neutral-400
+        dark:text-amber-400 leading-5
+      "
+            />
+          </div>
+
           {jsonError ? (
-            <p className="mt-2 text-sm text-red-600">{jsonError}</p>
+            <p className="mt-3 text-sm text-red-600">{jsonError}</p>
           ) : null}
 
           <div className="mt-5 space-y-2">
             <button
               type="button"
-              className="w-full rounded-md bg-sky-600 px-4 py-2 text-sm font-semibold text-white"
+              className="w-full rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700"
               onClick={saveDraft}
             >
               Save Draft
             </button>
+
             <button
               type="button"
-              className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
+              className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
               onClick={publishPage}
             >
               Publish Home Page
             </button>
           </div>
-          <p className="mt-3 text-xs text-slate-500">{status}</p>
+
+          <p className="mt-3 text-xs text-muted-foreground">{status}</p>
         </section>
       </div>
     </div>
