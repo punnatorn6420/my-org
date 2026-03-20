@@ -1,5 +1,6 @@
 'use client';
 
+import { SectionRenderer } from '@my-org/ui/section/section-renderer';
 import type {
   LayoutRow,
   SectionInstanceOption,
@@ -30,20 +31,29 @@ export function LayoutPreviewGrid({
             className="grid grid-cols-12 gap-2 rounded-md border border-dashed border-border bg-background/70 p-2"
           >
             {row.columns.map((column) => {
-              const label = column.sectionInstanceId
-                ? sectionLookup.get(column.sectionInstanceId)?.label
+              const section = column.sectionInstanceId
+                ? sectionLookup.get(column.sectionInstanceId)
                 : null;
 
               return (
                 <div
                   key={column.id}
                   style={{ gridColumn: `span ${column.span} / span ${column.span}` }}
-                  className="rounded border border-border bg-muted/50 p-3"
+                  className="rounded border border-border bg-muted/30 p-2"
                 >
                   <p className="text-xs font-medium">R{rowIndex + 1} • Span {column.span}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {label ?? 'Unassigned section placeholder'}
-                  </p>
+                  {section?.draftProps ? (
+                    <div className="mt-2 max-h-80 overflow-auto rounded border border-border bg-white">
+                      <SectionRenderer
+                        sectionKey={section.sectionKey}
+                        props={section.draftProps}
+                      />
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {section?.label ?? 'Unassigned section placeholder'}
+                    </p>
+                  )}
                 </div>
               );
             })}

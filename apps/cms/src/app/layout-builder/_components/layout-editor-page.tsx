@@ -16,13 +16,17 @@ import {
 import { RowTemplatePicker } from './row-template-picker';
 import { LayoutRowCard } from './layout-row-card';
 import { LayoutPreviewGrid } from './layout-preview-grid';
-import type { HomeSectionKey } from '@my-org/ui/section/content-models';
+import type {
+  AnySectionProps,
+  HomeSectionKey,
+} from '@my-org/ui/section/content-models';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
 
 interface SectionEntry {
   id: string;
   sectionKey: HomeSectionKey;
+  draftProps: AnySectionProps;
 }
 
 function updateRow(rows: LayoutRow[], rowId: string, updater: (row: LayoutRow) => LayoutRow): LayoutRow[] {
@@ -62,6 +66,7 @@ export function LayoutEditorPage() {
         id: entry.id,
         sectionKey: entry.sectionKey,
         label: formatSectionLabel(entry.sectionKey),
+        draftProps: entry.draftProps,
       }));
 
       setSections(sectionOptions);
