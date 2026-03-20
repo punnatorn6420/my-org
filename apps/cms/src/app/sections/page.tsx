@@ -9,9 +9,19 @@ import {
   type AnySectionProps,
   type HomeSectionKey,
 } from '../../../../../libs/ui/src/section/content-models';
-import { SectionRenderer } from '../../../../../libs/ui/src/section/section-renderer';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+const PREVIEW_APP_URL =
+  process.env.NEXT_PUBLIC_PREVIEW_APP_URL ?? 'http://localhost:4200';
+
+const PREVIEW_PRESETS = [
+  { label: 'Mobile', width: 330, height: 760 },
+  { label: 'Tablet', width: 768, height: 1024 },
+  { label: 'Laptop', width: 1280, height: 900 },
+  { label: 'Desktop', width: 1440, height: 900 },
+  { label: 'Full HD', width: 1920, height: 1080 },
+  { label: 'QHD', width: 2560, height: 1440 },
+] as const;
 
 interface SectionEntry {
   id: string;
@@ -42,7 +52,8 @@ export default function SectionsPage() {
   const [jsonDraft, setJsonDraft] = useState('');
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [status, setStatus] = useState('Loading...');
-  const [previewScale, setPreviewScale] = useState(0.6);
+  const [selectedPresetIndex, setSelectedPresetIndex] = useState(3);
+  const selectedPreset = PREVIEW_PRESETS[selectedPresetIndex];
 
   useEffect(() => {
     if (!isHomeSectionKey(querySection)) {
@@ -136,6 +147,17 @@ export default function SectionsPage() {
     selectedEntry?.draftProps ??
     defaultSectionProps[selectedKey];
 
+  const previewUrl = useMemo(() => {
+    const params = new URLSearchParams({
+      section: selectedKey,
+      width: String(selectedPreset.width),
+      height: String(selectedPreset.height),
+      draft: JSON.stringify(previewProps),
+    });
+
+    return `${PREVIEW_APP_URL}/sections/preview?${params.toString()}`;
+  }, [previewProps, selectedKey, selectedPreset]);
+
   return (
     <div className="space-y-2">
       <div>
@@ -147,36 +169,39 @@ export default function SectionsPage() {
       <div className="grid gap-2 ">
         <section className="rounded-2xl space-y-2">
           <h2 className="text-base font-semibold">Live Section Preview</h2>
-          <div className="flex flex-wrap gap-2">
-            {[0.6, 0.72].map((scale) => {
-              const isActive = previewScale === scale;
+          <div className="flex flex-wrap items-center gap-2">
+            {PREVIEW_PRESETS.map((preset, index) => {
+              const isActive = selectedPresetIndex === index;
+
               return (
                 <button
-                  key={scale}
+                  key={preset.label}
                   type="button"
-                  onClick={() => setPreviewScale(scale)}
+                  onClick={() => setSelectedPresetIndex(index)}
                   className={`rounded-md border px-3 py-1 text-xs font-medium ${
                     isActive
                       ? 'border-slate-900 bg-slate-900 text-white'
                       : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  {Math.round(scale * 100)}%
+                  {preset.label}
                 </button>
               );
             })}
           </div>
+          <p className="text-xs text-slate-500">
+            Current preview size: {selectedPreset.width} x {selectedPreset.height}
+          </p>
 
-          <div className="overflow-auto rounded-sm border-4 border-amber-500">
-            <div
-              className="origin-top-left"
-              style={{
-                transform: `scale(${previewScale})`,
-                width: `${100 / previewScale}%`,
-              }}
-            >
-              <SectionRenderer sectionKey={selectedKey} props={previewProps} />
-            </div>
+          <div className="overflow-auto rounded-sm border-4 border-amber-500 bg-slate-200 p-3">
+            <iframe
+              key={previewUrl}
+              title={`Preview ${selectedPreset.label}`}
+              src={previewUrl}
+              width={selectedPreset.width}
+              height={selectedPreset.height}
+              className="block border border-slate-300 bg-white"
+            />
           </div>
         </section>
         <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
