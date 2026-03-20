@@ -13,18 +13,16 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-[#fcfcfd] text-slate-900 antialiased">
+      <body className="min-h-screen bg-white text-slate-900 antialiased">
         <SidebarProvider defaultOpen>
-          <div className="min-h-screen bg-[#fcfcfd]">
+          <div className="min-h-screen bg-white">
             <AppHeader />
-
             <div className="flex">
               <div className="hidden md:block">
                 <AppSidebar />
               </div>
-
               <main className="min-w-0 flex-1">
-                <div className="mx-auto max-w-[1400px] px-6 py-4">
+                <div className="mx-auto max-w-[1400px] px-4 py-2">
                   {children}
                 </div>
               </main>

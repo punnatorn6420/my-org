@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   defaultSectionProps,
@@ -40,6 +40,7 @@ function isHomeSectionKey(value: string | null): value is HomeSectionKey {
 export default function SectionsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const querySection = searchParams.get('section');
   const selectedKey = isHomeSectionKey(querySection)
@@ -51,6 +52,15 @@ export default function SectionsPage() {
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [status, setStatus] = useState('Loading...');
   const [previewScale, setPreviewScale] = useState(0.6);
+  const [activeTab, setActiveTab] = useState<'preview' | 'edit'>('preview');
+
+  const adjustTextareaHeight = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  };
 
   useEffect(() => {
     if (!isHomeSectionKey(querySection)) {
@@ -73,6 +83,16 @@ export default function SectionsPage() {
     setJsonDraft(JSON.stringify(content, null, 2));
     setJsonError(null);
   }, [selectedEntry, selectedKey]);
+
+  useLayoutEffect(() => {
+    if (activeTab !== 'edit') return;
+
+    const frame = requestAnimationFrame(() => {
+      adjustTextareaHeight();
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [jsonDraft, activeTab, selectedKey]);
 
   async function loadEntries() {
     try {
@@ -100,10 +120,12 @@ export default function SectionsPage() {
 
   async function saveDraft() {
     const draftProps = tryParseDraft(jsonDraft);
+
     if (!draftProps) {
       setJsonError('Invalid JSON. Fix syntax before saving.');
       return;
     }
+
     setJsonError(null);
 
     const response = await fetch(
@@ -145,24 +167,30 @@ export default function SectionsPage() {
     defaultSectionProps[selectedKey];
 
   return (
-    <div className="space-y-2">
-      <div>
-        <h1 className="text-2xl">
-          Editing section: <span className="font-semibold">{selectedKey}</span>
-        </h1>
-      </div>
+    <div className="w-full space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as 'preview' | 'edit')}
+        className="w-full"
+      >
+        <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <h1 className="min-w-0 text-xl">
+            Editing section:{' '}
+            <span className="font-semibold">{selectedKey}</span>
+          </h1>
 
-      <Tabs defaultValue="preview" className="gap-4">
-        <TabsList className="w-fit">
-          <TabsTrigger value="preview">Preview</TabsTrigger>
-          <TabsTrigger value="edit">Edit Content</TabsTrigger>
-        </TabsList>
+          <TabsList className="w-[300px] self-start bg-amber-100 text-amber-600 lg:self-auto">
+            <TabsTrigger value="preview">Preview</TabsTrigger>
+            <TabsTrigger value="edit">Edit Content</TabsTrigger>
+          </TabsList>
+        </div>
 
-        <TabsContent value="preview" className="space-y-2">
-          <section className="rounded-2xl space-y-2">
+        <TabsContent value="preview" className="w-full">
+          <section className="w-full space-y-3">
             <div className="flex flex-wrap gap-2">
               {[0.36, 0.48, 0.6, 0.72, 0.84, 1].map((scale) => {
                 const isActive = previewScale === scale;
+
                 return (
                   <Button
                     key={scale}
@@ -177,7 +205,7 @@ export default function SectionsPage() {
               })}
             </div>
 
-            <div className="overflow-auto rounded-sm border-4 border-amber-500">
+            <div className="w-full overflow-x-auto rounded-sm border-4 border-amber-500 bg-white">
               <div
                 className="origin-top-left"
                 style={{
@@ -194,47 +222,39 @@ export default function SectionsPage() {
           </section>
         </TabsContent>
 
-        <TabsContent value="edit">
-          <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-            <div className="mb-4">
-              <h2 className="text-base font-semibold text-foreground">
-                Draft JSON
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                ปรับ JSON ของ section นี้ แล้วกดบันทึก Draft หรือ Publish ได้ทันที
-              </p>
-            </div>
+        <TabsContent value="edit" className="w-full">
+          <div className="rounded-2xl bg-neutral-200/25 p-6 dark:bg-neutral-900/60">
+            <Textarea
+              ref={textareaRef}
+              rows={1}
+              value={jsonDraft}
+              onChange={(event) => setJsonDraft(event.target.value)}
+              onInput={adjustTextareaHeight}
+              spellCheck={false}
+              className="min-h-0 w-full resize-none overflow-hidden border-0 bg-transparent p-0 font-mono text-sm leading-5 text-amber-700 shadow-none outline-none ring-0 focus-visible:ring-0 dark:text-amber-400"
+            />
+          </div>
 
-            <div className="rounded-2xl bg-neutral-100 p-6 dark:bg-neutral-900/60">
-              <Textarea
-                value={jsonDraft}
-                onChange={(event) => setJsonDraft(event.target.value)}
-                spellCheck={false}
-                className="min-h-[560px] resize-none border-0 bg-transparent p-0 font-mono text-sm leading-5 text-amber-700 outline-none ring-0 dark:text-amber-400"
-              />
-            </div>
+          {jsonError ? (
+            <p className="mt-3 text-sm text-red-600">{jsonError}</p>
+          ) : null}
 
-            {jsonError ? (
-              <p className="mt-3 text-sm text-red-600">{jsonError}</p>
-            ) : null}
+          <div className="mt-5 space-y-2">
+            <Button type="button" className="w-full" onClick={saveDraft}>
+              Save Draft
+            </Button>
 
-            <div className="mt-5 space-y-2">
-              <Button type="button" className="w-full" onClick={saveDraft}>
-                Save Draft
-              </Button>
+            <Button
+              type="button"
+              className="w-full"
+              variant="secondary"
+              onClick={publishPage}
+            >
+              Publish Home Page
+            </Button>
+          </div>
 
-              <Button
-                type="button"
-                className="w-full"
-                variant="secondary"
-                onClick={publishPage}
-              >
-                Publish Home Page
-              </Button>
-            </div>
-
-            <p className="mt-3 text-xs text-muted-foreground">{status}</p>
-          </section>
+          <p className="mt-3 text-xs text-muted-foreground">{status}</p>
         </TabsContent>
       </Tabs>
     </div>
