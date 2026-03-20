@@ -10,6 +10,14 @@ import {
   type HomeSectionKey,
 } from '../../../../../libs/ui/src/section/content-models';
 import { SectionRenderer } from '../../../../../libs/ui/src/section/section-renderer';
+import { Button } from '../../../../../libs/ui/src/components/ui/button';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '../../../../../libs/ui/src/components/ui/tabs';
+import { Textarea } from '../../../../../libs/ui/src/components/ui/textarea';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
 
@@ -144,89 +152,91 @@ export default function SectionsPage() {
         </h1>
       </div>
 
-      <div className="grid gap-2 ">
-        <section className="rounded-2xl space-y-2">
-          <div className="flex flex-wrap gap-2">
-            {[0.36, 0.48, 0.6, 0.72, 0.84, 1].map((scale) => {
-              const isActive = previewScale === scale;
-              return (
-                <button
-                  key={scale}
-                  type="button"
-                  onClick={() => setPreviewScale(scale)}
-                  className={`rounded-md border px-3 py-1 text-xs font-medium ${
-                    isActive
-                      ? 'border-slate-900 bg-slate-900 text-white'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                  }`}
-                >
-                  {Math.round(scale * 100)}%
-                </button>
-              );
-            })}
-          </div>
+      <Tabs defaultValue="preview" className="gap-4">
+        <TabsList className="w-fit">
+          <TabsTrigger value="preview">Preview</TabsTrigger>
+          <TabsTrigger value="edit">Edit Content</TabsTrigger>
+        </TabsList>
 
-          <div className="overflow-auto rounded-sm border-4 border-amber-500">
-            <div
-              className="origin-top-left"
-              style={{
-                transform: `scale(${previewScale})`,
-                width: `${100 / previewScale}%`,
-              }}
-            >
-              <SectionRenderer sectionKey={selectedKey} props={previewProps} />
+        <TabsContent value="preview" className="space-y-2">
+          <section className="rounded-2xl space-y-2">
+            <div className="flex flex-wrap gap-2">
+              {[0.36, 0.48, 0.6, 0.72, 0.84, 1].map((scale) => {
+                const isActive = previewScale === scale;
+                return (
+                  <Button
+                    key={scale}
+                    type="button"
+                    size="sm"
+                    variant={isActive ? 'default' : 'outline'}
+                    onClick={() => setPreviewScale(scale)}
+                  >
+                    {Math.round(scale * 100)}%
+                  </Button>
+                );
+              })}
             </div>
-          </div>
-        </section>
-        <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-          <div className="mb-4">
-            <h2 className="text-base font-semibold text-foreground">
-              Draft JSON
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              ปรับ JSON ของ section นี้ แล้วกดบันทึก Draft หรือ Publish ได้ทันที
-            </p>
-          </div>
 
-          <div className="rounded-2xl bg-neutral-100 p-6 dark:bg-neutral-900/60">
-            <textarea
-              value={jsonDraft}
-              onChange={(event) => setJsonDraft(event.target.value)}
-              spellCheck={false}
-              className="
-        min-h-[560px] w-full resize-none border-0 bg-transparent p-0
-        font-mono text-sm text-amber-700
-        outline-none ring-0 placeholder:text-neutral-400
-        dark:text-amber-400 leading-5
-      "
-            />
-          </div>
+            <div className="overflow-auto rounded-sm border-4 border-amber-500">
+              <div
+                className="origin-top-left"
+                style={{
+                  transform: `scale(${previewScale})`,
+                  width: `${100 / previewScale}%`,
+                }}
+              >
+                <SectionRenderer
+                  sectionKey={selectedKey}
+                  props={previewProps}
+                />
+              </div>
+            </div>
+          </section>
+        </TabsContent>
 
-          {jsonError ? (
-            <p className="mt-3 text-sm text-red-600">{jsonError}</p>
-          ) : null}
+        <TabsContent value="edit">
+          <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <div className="mb-4">
+              <h2 className="text-base font-semibold text-foreground">
+                Draft JSON
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                ปรับ JSON ของ section นี้ แล้วกดบันทึก Draft หรือ Publish ได้ทันที
+              </p>
+            </div>
 
-          <div className="mt-5 space-y-2">
-            <button
-              type="button"
-              className="w-full rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700"
-              onClick={saveDraft}
-            >
-              Save Draft
-            </button>
+            <div className="rounded-2xl bg-neutral-100 p-6 dark:bg-neutral-900/60">
+              <Textarea
+                value={jsonDraft}
+                onChange={(event) => setJsonDraft(event.target.value)}
+                spellCheck={false}
+                className="min-h-[560px] resize-none border-0 bg-transparent p-0 font-mono text-sm leading-5 text-amber-700 outline-none ring-0 dark:text-amber-400"
+              />
+            </div>
 
-            <button
-              type="button"
-              className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
-              onClick={publishPage}
-            >
-              Publish Home Page
-            </button>
-          </div>
+            {jsonError ? (
+              <p className="mt-3 text-sm text-red-600">{jsonError}</p>
+            ) : null}
 
-          <p className="mt-3 text-xs text-muted-foreground">{status}</p>
-        </section>
-      </div>
+            <div className="mt-5 space-y-2">
+              <Button type="button" className="w-full" onClick={saveDraft}>
+                Save Draft
+              </Button>
+
+              <Button
+                type="button"
+                className="w-full"
+                variant="secondary"
+                onClick={publishPage}
+              >
+                Publish Home Page
+              </Button>
+            </div>
+
+            <p className="mt-3 text-xs text-muted-foreground">{status}</p>
+          </section>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
