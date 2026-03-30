@@ -250,15 +250,22 @@ export default function SectionsPage() {
             <p className="mt-3 text-sm text-red-600">{jsonError}</p>
           ) : null}
 
-          <div className="mt-5 space-y-2">
-            <Button type="button" className="w-full" onClick={saveDraft}>
+          <div className="mt-5 space-y-2 flex flex-col sm:flex-row sm:items-center sm:gap-4 justify-between">
+            <Button
+              type="button"
+              size="lg"
+              className="w-48 text-amber-700 border-amber-600 hover:text-amber-400 hover:border-amber-300"
+              variant="outline"
+              onClick={saveDraft}
+            >
               Save Draft
             </Button>
 
             <Button
               type="button"
-              className="w-full"
-              variant="secondary"
+              size="lg"
+              className="w-48 text-amber-700 border-amber-600 hover:text-amber-400 hover:border-amber-300"
+              variant="outline"
               onClick={publishPage}
             >
               Publish Home Page
