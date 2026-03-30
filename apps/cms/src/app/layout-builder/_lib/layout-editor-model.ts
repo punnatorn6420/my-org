@@ -152,5 +152,18 @@ export function normalizeApiLayout(
     });
   }
 
+  if (sectionOptions.length) {
+    return sectionOptions.map((option) => ({
+      id: createId('row'),
+      columns: [
+        {
+          id: createId('col'),
+          span: 12,
+          sectionInstanceId: option.id,
+        },
+      ],
+    }));
+  }
+
   return [createRowFromSpans([12])];
 }

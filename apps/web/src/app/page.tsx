@@ -10,16 +10,32 @@ const API_URL =
   'http://localhost:3000/api';
 
 async function getPublishedHomePage(): Promise<PublishedPageSnapshot> {
-  const response = await fetch(`${API_URL}/public/pages/${HOME_PAGE_SLUG}`, {
-    cache: 'no-store',
-  });
+  try {
+    const response = await fetch(`${API_URL}/public/pages/${HOME_PAGE_SLUG}`, {
+      cache: 'no-store',
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to load published home page.');
+    if (!response.ok) {
+      console.error(
+        `Failed to load published home page. status=${response.status}`,
+      );
+      return {
+        pageSlug: HOME_PAGE_SLUG,
+        sections: [],
+        publishedAt: new Date(0).toISOString(),
+      };
+    }
+
+    const payload = await response.json();
+    return payload.snapshot as PublishedPageSnapshot;
+  } catch (error) {
+    console.error('Failed to load published home page.', error);
+    return {
+      pageSlug: HOME_PAGE_SLUG,
+      sections: [],
+      publishedAt: new Date(0).toISOString(),
+    };
   }
-
-  const payload = await response.json();
-  return payload.snapshot as PublishedPageSnapshot;
 }
 
 export default async function Index() {
