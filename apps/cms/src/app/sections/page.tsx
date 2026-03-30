@@ -179,9 +179,20 @@ export default function SectionsPage() {
             <span className="font-semibold">{selectedKey}</span>
           </h1>
 
-          <TabsList className="w-[300px] self-start bg-amber-100 text-amber-600 lg:self-auto">
-            <TabsTrigger value="preview">Preview</TabsTrigger>
-            <TabsTrigger value="edit">Edit Content</TabsTrigger>
+          <TabsList className="inline-flex p-1 rounded-md bg-slate-100 shadow-sm gap-1">
+            <TabsTrigger
+              value="preview"
+              className="px-4 py-2 data-[state=active]:bg-white w-32"
+            >
+              Preview
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="edit"
+              className="px-4 py-2 data-[state=active]:bg-white w-32"
+            >
+              Edit Content
+            </TabsTrigger>
           </TabsList>
         </div>
 
