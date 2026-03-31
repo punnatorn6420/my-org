@@ -61,8 +61,8 @@ export function createBlockFromSection(
     sectionKey: section.sectionKey,
     colStart: position.colStart,
     rowStart: position.rowStart,
-    colSpan: section.sectionKey === 'hero-booking' ? 3 : 2,
-    rowSpan: section.sectionKey === 'hero-booking' ? 2 : 1,
+    colSpan: section.sectionKey === 'hero-booking-section' ? 3 : 2,
+    rowSpan: section.sectionKey === 'hero-booking-section' ? 2 : 1,
   };
 }
 
@@ -222,4 +222,35 @@ export function normalizeApiLayout(payload: unknown): LayoutCanvasState {
   }
 
   return { columns: GRID_COLUMNS, rows: DEFAULT_GRID_ROWS, blocks: [] };
+}
+
+// Legacy row/column exports kept temporarily for backward compatibility in
+// older components that still exist in the codebase.
+export interface LayoutColumn {
+  id: string;
+  span: number;
+  sectionInstanceId?: string;
+}
+
+export interface LayoutRow {
+  id: string;
+  columns: LayoutColumn[];
+}
+
+export interface RowTemplate {
+  id: string;
+  label: string;
+  spans: number[];
+}
+
+export const ROW_TEMPLATES: RowTemplate[] = [
+  { id: 'full', label: '12', spans: [12] },
+  { id: 'half-half', label: '6-6', spans: [6, 6] },
+  { id: 'thirds', label: '4-4-4', spans: [4, 4, 4] },
+  { id: 'sidebar-main', label: '3-9', spans: [3, 9] },
+  { id: 'mixed-three', label: '3-3-6', spans: [3, 3, 6] },
+];
+
+export function getRowSpanTotal(row: LayoutRow) {
+  return row.columns.reduce((total, column) => total + column.span, 0);
 }
