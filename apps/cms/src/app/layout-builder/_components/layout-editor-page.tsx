@@ -42,6 +42,7 @@ export function LayoutEditorPage() {
   const [sections, setSections] = useState<SectionInstanceOption[]>([]);
   const [status, setStatus] = useState('Loading layout draft...');
   const [isBusy, setIsBusy] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const sectionLookup = useMemo(
     () => new Map(sections.map((section) => [section.id, section])),
@@ -337,8 +338,25 @@ export function LayoutEditorPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(360px,1fr)]">
+      <div
+        className={`grid gap-6 ${
+          isPreviewOpen
+            ? 'xl:grid-cols-[minmax(0,2fr)_minmax(360px,1fr)]'
+            : 'xl:grid-cols-1'
+        }`}
+      >
         <section className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-card p-3">
+            <p className="text-sm font-medium">Layout Builder</p>
+            <Button
+              type="button"
+              variant={isPreviewOpen ? 'secondary' : 'outline'}
+              onClick={() => setIsPreviewOpen((prev) => !prev)}
+            >
+              {isPreviewOpen ? 'Hide Preview' : 'Show Preview'}
+            </Button>
+          </div>
+
           <RowTemplatePicker onPickTemplate={addRow} />
 
           <div className="space-y-4">
@@ -366,9 +384,11 @@ export function LayoutEditorPage() {
           </div>
         </section>
 
-        <aside className="space-y-4">
-          <LayoutPreviewGrid rows={rows} sectionLookup={sectionLookup} />
-        </aside>
+        {isPreviewOpen ? (
+          <aside className="space-y-4">
+            <LayoutPreviewGrid rows={rows} sectionLookup={sectionLookup} />
+          </aside>
+        ) : null}
       </div>
     </div>
   );
