@@ -2,24 +2,28 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '../../../../../../libs/ui/src/components/ui/button';
-import {
-  DEFAULT_PAGE_SLUG,
-  LAYOUT_STORAGE_KEY,
-  createId,
-  createRowFromSpans,
-  formatSectionLabel,
-  normalizeApiLayout,
-  validateRows,
-  type LayoutRow,
-  type SectionInstanceOption,
-} from '../_lib/layout-editor-model';
-import { RowTemplatePicker } from './row-template-picker';
-import { LayoutRowCard } from './layout-row-card';
-import { LayoutPreviewGrid } from './layout-preview-grid';
 import type {
   AnySectionProps,
   HomeSectionKey,
 } from '../../../../../../libs/ui/src/section/content-models';
+import {
+  DEFAULT_PAGE_SLUG,
+  GRID_COLUMNS,
+  canPlaceBlock,
+  createBlockFromSection,
+  formatSectionLabel,
+  getRequiredRows,
+  moveBlock,
+  normalizeApiLayout,
+  type GridPosition,
+  type LayoutBlock,
+  type LayoutCanvasState,
+  type SectionInstanceOption,
+} from '../_lib/layout-editor-model';
+import { GridCanvas } from './grid-canvas';
+import { InspectorPanel } from './inspector-panel';
+import { PreviewPanel } from './preview-panel';
+import { SectionPalette } from './section-palette';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
 
@@ -29,17 +33,27 @@ interface SectionEntry {
   draftProps: AnySectionProps;
 }
 
-function updateRow(
-  rows: LayoutRow[],
-  rowId: string,
-  updater: (row: LayoutRow) => LayoutRow,
-): LayoutRow[] {
-  return rows.map((row) => (row.id === rowId ? updater(row) : row));
-}
+type ActiveDrag =
+  | { type: 'palette'; section: SectionInstanceOption }
+  | { type: 'block'; blockId: string }
+  | null;
 
 export function LayoutEditorPage() {
-  const [rows, setRows] = useState<LayoutRow[]>([]);
+  const [canvas, setCanvas] = useState<LayoutCanvasState>({
+    columns: GRID_COLUMNS,
+    rows: 8,
+    blocks: [],
+  });
   const [sections, setSections] = useState<SectionInstanceOption[]>([]);
+  const [selectedBlockId, setSelectedBlockId] = useState<string>();
+  const [activeDrag, setActiveDrag] = useState<ActiveDrag>(null);
+  const [dropPreview, setDropPreview] = useState<{
+    colStart: number;
+    rowStart: number;
+    colSpan: number;
+    rowSpan: number;
+    isValid: boolean;
+  } | null>(null);
   const [status, setStatus] = useState('Loading layout draft...');
   const [isBusy, setIsBusy] = useState(false);
 
@@ -48,7 +62,10 @@ export function LayoutEditorPage() {
     [sections],
   );
 
-  const validationErrors = useMemo(() => validateRows(rows), [rows]);
+  const blockLookup = useMemo(
+    () => new Map(canvas.blocks.map((block) => [block.id, block])),
+    [canvas.blocks],
+  );
 
   useEffect(() => {
     void loadInitialData();
@@ -74,205 +91,166 @@ export function LayoutEditorPage() {
         label: formatSectionLabel(entry.sectionKey),
         draftProps: entry.draftProps,
       }));
-
       setSections(sectionOptions);
 
       if (layoutResponse.ok) {
         const layoutPayload = (await layoutResponse.json()) as unknown;
-        const parsedRows = normalizeApiLayout(layoutPayload, sectionOptions);
-        setRows(parsedRows);
+        setCanvas(normalizeApiLayout(layoutPayload));
         setStatus('Draft loaded from API.');
         return;
       }
 
-      loadFromLocalStorage(sectionOptions);
-      setStatus('API unavailable, loaded local draft.');
+      setStatus('Layout API unavailable.');
     } catch {
-      loadFromLocalStorage([]);
-      setStatus('Failed to reach API, loaded local draft fallback.');
+      setStatus('Failed to reach API.');
     } finally {
       setIsBusy(false);
     }
   }
 
-  function loadFromLocalStorage(sectionOptions: SectionInstanceOption[]) {
-    try {
-      const raw = localStorage.getItem(LAYOUT_STORAGE_KEY);
-      if (!raw) {
-        setRows([createRowFromSpans([12])]);
-        return;
-      }
+  function resolveCandidate(position: GridPosition) {
+    if (!activeDrag) return null;
 
-      const parsed = JSON.parse(raw) as { rows?: LayoutRow[] };
-      if (parsed.rows?.length) {
-        setRows(normalizeApiLayout({ draftRows: parsed.rows }, sectionOptions));
-        return;
-      }
-
-      setRows([createRowFromSpans([12])]);
-    } catch {
-      setRows([createRowFromSpans([12])]);
-    }
-  }
-
-  function addRow(spans: number[]) {
-    setRows((prev) => [...prev, createRowFromSpans(spans)]);
-  }
-
-  function updateColumnSpan(rowId: string, columnId: string, span: number) {
-    const safeSpan = Number.isFinite(span)
-      ? Math.max(1, Math.min(12, span))
-      : 1;
-
-    setRows((prev) =>
-      updateRow(prev, rowId, (row) => ({
-        ...row,
-        columns: row.columns.map((column) =>
-          column.id === columnId ? { ...column, span: safeSpan } : column,
-        ),
-      })),
-    );
-  }
-
-  function assignSection(
-    rowId: string,
-    columnId: string,
-    sectionInstanceId: string | undefined,
-  ) {
-    setRows((prev) =>
-      updateRow(prev, rowId, (row) => ({
-        ...row,
-        columns: row.columns.map((column) =>
-          column.id === columnId ? { ...column, sectionInstanceId } : column,
-        ),
-      })),
-    );
-  }
-
-  function removeColumn(rowId: string, columnId: string) {
-    setRows((prev) =>
-      updateRow(prev, rowId, (row) => ({
-        ...row,
-        columns: row.columns.filter((column) => column.id !== columnId),
-      })),
-    );
-  }
-
-  function addColumn(rowId: string) {
-    setRows((prev) =>
-      updateRow(prev, rowId, (row) => ({
-        ...row,
-        columns: [...row.columns, { id: createId('col'), span: 3 }],
-      })),
-    );
-  }
-
-  function moveRow(rowId: string, direction: -1 | 1) {
-    setRows((prev) => {
-      const index = prev.findIndex((row) => row.id === rowId);
-      const nextIndex = index + direction;
-      if (index < 0 || nextIndex < 0 || nextIndex >= prev.length) {
-        return prev;
-      }
-
-      const copy = [...prev];
-      const [target] = copy.splice(index, 1);
-      copy.splice(nextIndex, 0, target);
-      return copy;
-    });
-  }
-
-  function duplicateRow(rowId: string) {
-    setRows((prev) => {
-      const index = prev.findIndex((row) => row.id === rowId);
-      if (index < 0) return prev;
-
-      const source = prev[index];
-      const duplicated: LayoutRow = {
-        id: createId('row'),
-        columns: source.columns.map((column) => ({
-          ...column,
-          id: createId('col'),
-        })),
+    if (activeDrag.type === 'palette') {
+      const candidate = createBlockFromSection(activeDrag.section, position);
+      return {
+        candidate,
+        isValid: canPlaceBlock(candidate, canvas.blocks, canvas.columns),
+        mode: 'create' as const,
       };
+    }
 
-      const copy = [...prev];
-      copy.splice(index + 1, 0, duplicated);
-      return copy;
-    });
+    const source = blockLookup.get(activeDrag.blockId);
+    if (!source) return null;
+
+    const candidate: LayoutBlock = {
+      ...source,
+      colStart: position.colStart,
+      rowStart: position.rowStart,
+    };
+
+    return {
+      candidate,
+      isValid: canPlaceBlock(
+        candidate,
+        canvas.blocks,
+        canvas.columns,
+        source.id,
+      ),
+      mode: 'move' as const,
+    };
   }
 
-  function deleteRow(rowId: string) {
-    setRows((prev) => {
-      const filtered = prev.filter((row) => row.id !== rowId);
-      return filtered.length ? filtered : [createRowFromSpans([12])];
-    });
-  }
-
-  async function saveDraft() {
-    if (validationErrors.length) {
-      setStatus('Fix validation errors before saving.');
+  function handleCanvasDragOver(position: GridPosition) {
+    const resolved = resolveCandidate(position);
+    if (!resolved) {
+      setDropPreview(null);
       return;
     }
 
+    setDropPreview({
+      colStart: resolved.candidate.colStart,
+      rowStart: resolved.candidate.rowStart,
+      colSpan: resolved.candidate.colSpan,
+      rowSpan: resolved.candidate.rowSpan,
+      isValid: resolved.isValid,
+    });
+  }
+
+  function handleCanvasDrop(position: GridPosition) {
+    const resolved = resolveCandidate(position);
+    if (!resolved?.isValid) {
+      setDropPreview(null);
+      setActiveDrag(null);
+      return;
+    }
+
+    setCanvas((prev) => {
+      if (resolved.mode === 'create') {
+        const nextBlocks = [...prev.blocks, resolved.candidate];
+        return {
+          ...prev,
+          blocks: nextBlocks,
+          rows: getRequiredRows(nextBlocks),
+        };
+      }
+
+      if (!activeDrag || activeDrag.type !== 'block') {
+        return prev;
+      }
+
+      const moved = moveBlock(
+        prev.blocks,
+        activeDrag.blockId,
+        {
+          colStart: resolved.candidate.colStart,
+          rowStart: resolved.candidate.rowStart,
+        },
+        prev.columns,
+      );
+
+      return {
+        ...prev,
+        blocks: moved.blocks,
+        rows: getRequiredRows(moved.blocks),
+      };
+    });
+
+    setDropPreview(null);
+    setActiveDrag(null);
+  }
+
+  function deleteBlock(blockId: string) {
+    setCanvas((prev) => {
+      const nextBlocks = prev.blocks.filter((block) => block.id !== blockId);
+      return {
+        ...prev,
+        blocks: nextBlocks,
+        rows: getRequiredRows(nextBlocks),
+      };
+    });
+    if (selectedBlockId === blockId) {
+      setSelectedBlockId(undefined);
+    }
+  }
+
+  async function saveDraft() {
     setIsBusy(true);
 
     try {
-      const draftSections = rows
-        .flatMap((row) => row.columns)
-        .map((column) =>
-          column.sectionInstanceId
-            ? sectionLookup.get(column.sectionInstanceId)?.sectionKey
-            : undefined,
-        )
-        .filter((value): value is HomeSectionKey => Boolean(value))
-        .map((sectionKey) => ({ sectionKey }));
+      const draftSections = canvas.blocks
+        .map((block) => {
+          const sectionKey =
+            block.sectionKey ??
+            (block.sectionInstanceId
+              ? sectionLookup.get(block.sectionInstanceId)?.sectionKey
+              : undefined);
+          return sectionKey ? { sectionKey } : undefined;
+        })
+        .filter((value): value is { sectionKey: HomeSectionKey } =>
+          Boolean(value),
+        );
 
       const response = await fetch(
         `${API_URL}/cms/layout/${DEFAULT_PAGE_SLUG}`,
         {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ draftSections, draftRows: rows }),
+          body: JSON.stringify({ draftSections, draftLayout: canvas }),
         },
       );
 
-      localStorage.setItem(
-        LAYOUT_STORAGE_KEY,
-        JSON.stringify({
-          pageSlug: DEFAULT_PAGE_SLUG,
-          rows,
-          updatedAt: new Date().toISOString(),
-        }),
+      setStatus(
+        response.ok ? 'Draft saved successfully.' : 'Draft save failed on API.',
       );
-
-      if (!response.ok) {
-        setStatus('Draft saved locally. API rejected enhanced grid payload.');
-        return;
-      }
-
-      setStatus('Draft saved successfully.');
     } catch {
-      localStorage.setItem(
-        LAYOUT_STORAGE_KEY,
-        JSON.stringify({
-          pageSlug: DEFAULT_PAGE_SLUG,
-          rows,
-          updatedAt: new Date().toISOString(),
-        }),
-      );
-      setStatus('Draft saved locally. API request failed.');
+      setStatus('Draft save failed on API.');
     } finally {
       setIsBusy(false);
     }
   }
 
   async function publishLayout() {
-    if (validationErrors.length) {
-      setStatus('Cannot publish while layout has validation errors.');
-      return;
-    }
-
     setIsBusy(true);
     try {
       const response = await fetch(
@@ -290,6 +268,13 @@ export function LayoutEditorPage() {
     }
   }
 
+  const selectedBlock = selectedBlockId
+    ? blockLookup.get(selectedBlockId)
+    : undefined;
+  const selectedSection = selectedBlock?.sectionInstanceId
+    ? sectionLookup.get(selectedBlock.sectionInstanceId)
+    : undefined;
+
   return (
     <div className="space-y-6 pb-10">
       <header className="space-y-3">
@@ -299,8 +284,8 @@ export function LayoutEditorPage() {
               Home Layout Editor
             </h1>
             <p className="text-sm text-muted-foreground">
-              Build homepage layout using structured rows, columns, and
-              12-column span rules.
+              Visual-first, constrained grid editor with non-overlapping section
+              blocks.
             </p>
           </div>
 
@@ -326,49 +311,34 @@ export function LayoutEditorPage() {
         <p className="text-xs text-muted-foreground">{status}</p>
       </header>
 
-      {validationErrors.length ? (
-        <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">
-          <p className="font-semibold">Layout validation</p>
-          <ul className="mt-1 list-disc pl-4">
-            {validationErrors.map((error) => (
-              <li key={error}>{error}</li>
-            ))}
-          </ul>
+      <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
+        <SectionPalette
+          sections={sections}
+          onDragSection={(section) =>
+            setActiveDrag({ type: 'palette', section })
+          }
+        />
+        <GridCanvas
+          columns={canvas.columns}
+          rows={canvas.rows}
+          blocks={canvas.blocks}
+          sectionLookup={sectionLookup}
+          selectedBlockId={selectedBlockId}
+          onSelectBlock={setSelectedBlockId}
+          onDragBlock={(blockId) => setActiveDrag({ type: 'block', blockId })}
+          onCanvasDragOver={handleCanvasDragOver}
+          onCanvasDrop={handleCanvasDrop}
+          onCanvasDragLeave={() => setDropPreview(null)}
+          dropPreview={dropPreview}
+        />
+        <div className="space-y-4">
+          <InspectorPanel
+            selectedBlock={selectedBlock}
+            selectedSection={selectedSection}
+            onDelete={deleteBlock}
+          />
+          <PreviewPanel blocks={canvas.blocks} sectionLookup={sectionLookup} />
         </div>
-      ) : null}
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(360px,1fr)]">
-        <section className="space-y-4">
-          <RowTemplatePicker onPickTemplate={addRow} />
-
-          <div className="space-y-4">
-            {rows.map((row, index) => (
-              <LayoutRowCard
-                key={row.id}
-                row={row}
-                rowIndex={index}
-                sectionOptions={sections}
-                sectionLookup={sectionLookup}
-                onMoveUp={() => moveRow(row.id, -1)}
-                onMoveDown={() => moveRow(row.id, 1)}
-                onDuplicate={() => duplicateRow(row.id)}
-                onDelete={() => deleteRow(row.id)}
-                onAddColumn={() => addColumn(row.id)}
-                onRemoveColumn={(columnId) => removeColumn(row.id, columnId)}
-                onUpdateColumnSpan={(columnId, span) =>
-                  updateColumnSpan(row.id, columnId, span)
-                }
-                onAssignSection={(columnId, sectionId) =>
-                  assignSection(row.id, columnId, sectionId)
-                }
-              />
-            ))}
-          </div>
-        </section>
-
-        <aside className="space-y-4">
-          <LayoutPreviewGrid rows={rows} sectionLookup={sectionLookup} />
-        </aside>
       </div>
     </div>
   );

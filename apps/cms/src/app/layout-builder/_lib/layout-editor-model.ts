@@ -1,20 +1,231 @@
 import {
   HOME_PAGE_SLUG,
-  type AnySectionProps,
   type HomeSectionKey,
 } from '../../../../../../libs/ui/src/section/content-models';
 
-export const GRID_COLUMNS = 12;
-export const LAYOUT_STORAGE_KEY = 'cms.home-layout-draft.v1';
+export const GRID_COLUMNS = 6;
+export const DEFAULT_GRID_ROWS = 8;
+export const GRID_CELL_HEIGHT = 88;
+export const LAYOUT_STORAGE_KEY = 'cms.home-layout-draft.v2';
 export const DEFAULT_PAGE_SLUG = HOME_PAGE_SLUG;
 
 export interface SectionInstanceOption {
   id: string;
   sectionKey: HomeSectionKey;
   label: string;
-  draftProps?: AnySectionProps;
+  draftProps?: unknown;
 }
 
+export interface LayoutBlock {
+  id: string;
+  sectionInstanceId?: string;
+  sectionKey?: HomeSectionKey;
+  colStart: number;
+  colSpan: number;
+  rowStart: number;
+  rowSpan: number;
+}
+
+export interface LayoutCanvasState {
+  columns: number;
+  rows: number;
+  blocks: LayoutBlock[];
+}
+
+export interface GridPosition {
+  colStart: number;
+  rowStart: number;
+}
+
+export function formatSectionLabel(sectionKey: string) {
+  return sectionKey
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+export function createId(prefix: string) {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return `${prefix}-${crypto.randomUUID()}`;
+  }
+
+  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+export function createBlockFromSection(
+  section: Pick<SectionInstanceOption, 'id' | 'sectionKey'>,
+  position: GridPosition,
+): LayoutBlock {
+  return {
+    id: createId('block'),
+    sectionInstanceId: section.id,
+    sectionKey: section.sectionKey,
+    colStart: position.colStart,
+    rowStart: position.rowStart,
+    colSpan: section.sectionKey === 'hero-booking-section' ? 3 : 2,
+    rowSpan: section.sectionKey === 'hero-booking-section' ? 2 : 1,
+  };
+}
+
+export function gridPositionFromPointer(
+  pointerX: number,
+  pointerY: number,
+  gridRect: DOMRect,
+  columns: number,
+): GridPosition {
+  const columnWidth = gridRect.width / columns;
+  const colStart = Math.max(
+    1,
+    Math.min(columns, Math.floor((pointerX - gridRect.left) / columnWidth) + 1),
+  );
+
+  const rowStart = Math.max(
+    1,
+    Math.floor((pointerY - gridRect.top) / GRID_CELL_HEIGHT) + 1,
+  );
+
+  return { colStart, rowStart };
+}
+
+function rangesOverlap(
+  startA: number,
+  spanA: number,
+  startB: number,
+  spanB: number,
+) {
+  const endA = startA + spanA - 1;
+  const endB = startB + spanB - 1;
+  return startA <= endB && startB <= endA;
+}
+
+export function isOverlapping(a: LayoutBlock, b: LayoutBlock) {
+  const colOverlap = rangesOverlap(
+    a.colStart,
+    a.colSpan,
+    b.colStart,
+    b.colSpan,
+  );
+  const rowOverlap = rangesOverlap(
+    a.rowStart,
+    a.rowSpan,
+    b.rowStart,
+    b.rowSpan,
+  );
+  return colOverlap && rowOverlap;
+}
+
+export function canPlaceBlock(
+  candidate: LayoutBlock,
+  blocks: LayoutBlock[],
+  columns: number,
+  ignoreBlockId?: string,
+) {
+  if (candidate.colStart < 1 || candidate.rowStart < 1) return false;
+  if (candidate.colStart + candidate.colSpan - 1 > columns) return false;
+
+  return !blocks.some((block) => {
+    if (ignoreBlockId && block.id === ignoreBlockId) return false;
+    return isOverlapping(candidate, block);
+  });
+}
+
+export function moveBlock(
+  blocks: LayoutBlock[],
+  blockId: string,
+  position: GridPosition,
+  columns: number,
+) {
+  const current = blocks.find((block) => block.id === blockId);
+  if (!current) return { blocks, isValid: false };
+
+  const candidate: LayoutBlock = {
+    ...current,
+    colStart: position.colStart,
+    rowStart: position.rowStart,
+  };
+
+  if (!canPlaceBlock(candidate, blocks, columns, blockId)) {
+    return { blocks, isValid: false };
+  }
+
+  return {
+    isValid: true,
+    blocks: blocks.map((block) => (block.id === blockId ? candidate : block)),
+  };
+}
+
+export function getRequiredRows(
+  blocks: LayoutBlock[],
+  minRows = DEFAULT_GRID_ROWS,
+) {
+  const maxBlockRow = blocks.reduce(
+    (max, block) => Math.max(max, block.rowStart + block.rowSpan - 1),
+    0,
+  );
+  return Math.max(minRows, maxBlockRow + 1);
+}
+
+export function normalizeApiLayout(payload: unknown): LayoutCanvasState {
+  const data = payload as
+    | {
+        draftLayout?: Partial<LayoutCanvasState>;
+        draftRows?: Array<{
+          columns?: Array<{ span?: number; sectionInstanceId?: string }>;
+        }>;
+      }
+    | undefined;
+
+  if (data?.draftLayout?.blocks?.length) {
+    const columns = Number.isFinite(data.draftLayout.columns)
+      ? Number(data.draftLayout.columns)
+      : GRID_COLUMNS;
+
+    const blocks = data.draftLayout.blocks.map((block, index) => ({
+      id: block.id ?? createId(`block-${index}`),
+      sectionInstanceId: block.sectionInstanceId,
+      sectionKey: block.sectionKey,
+      colStart: Number(block.colStart ?? 1),
+      colSpan: Number(block.colSpan ?? 2),
+      rowStart: Number(block.rowStart ?? 1),
+      rowSpan: Number(block.rowSpan ?? 1),
+    }));
+
+    return {
+      columns,
+      rows: getRequiredRows(blocks),
+      blocks,
+    };
+  }
+
+  // Backward-compat mapper from row/column model.
+  if (data?.draftRows?.length) {
+    const blocks = data.draftRows.flatMap((row, rowIndex) => {
+      let nextCol = 1;
+      return (row.columns ?? []).map((column, colIndex) => {
+        const safeSpan = Math.max(
+          1,
+          Math.min(GRID_COLUMNS, Math.round((column.span ?? 12) / 2)),
+        );
+        const block: LayoutBlock = {
+          id: createId(`legacy-${rowIndex}-${colIndex}`),
+          sectionInstanceId: column.sectionInstanceId,
+          colStart: nextCol,
+          colSpan: safeSpan,
+          rowStart: rowIndex + 1,
+          rowSpan: 1,
+        };
+        nextCol += safeSpan;
+        return block;
+      });
+    });
+
+    return { columns: GRID_COLUMNS, rows: getRequiredRows(blocks), blocks };
+  }
+
+  return { columns: GRID_COLUMNS, rows: DEFAULT_GRID_ROWS, blocks: [] };
+}
+
+// Legacy row/column exports kept temporarily for backward compatibility in
+// older components that still exist in the codebase.
 export interface LayoutColumn {
   id: string;
   span: number;
@@ -24,12 +235,6 @@ export interface LayoutColumn {
 export interface LayoutRow {
   id: string;
   columns: LayoutColumn[];
-}
-
-export interface HomeLayoutDraft {
-  pageSlug: string;
-  rows: LayoutRow[];
-  updatedAt?: string;
 }
 
 export interface RowTemplate {
@@ -46,124 +251,6 @@ export const ROW_TEMPLATES: RowTemplate[] = [
   { id: 'mixed-three', label: '3-3-6', spans: [3, 3, 6] },
 ];
 
-export function formatSectionLabel(sectionKey: string) {
-  return sectionKey
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-export function createId(prefix: string) {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return `${prefix}-${crypto.randomUUID()}`;
-  }
-
-  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
-}
-
-export function createRowFromSpans(spans: number[]): LayoutRow {
-  return {
-    id: createId('row'),
-    columns: spans.map((span) => ({
-      id: createId('col'),
-      span,
-    })),
-  };
-}
-
 export function getRowSpanTotal(row: LayoutRow) {
   return row.columns.reduce((total, column) => total + column.span, 0);
-}
-
-export function validateRows(rows: LayoutRow[]): string[] {
-  const errors: string[] = [];
-
-  if (!rows.length) {
-    errors.push('Add at least one row before saving.');
-  }
-
-  rows.forEach((row, rowIndex) => {
-    const total = getRowSpanTotal(row);
-
-    if (total > GRID_COLUMNS) {
-      errors.push(`Row ${rowIndex + 1} exceeds 12 columns (${total}/12).`);
-    }
-
-    if (total <= 0) {
-      errors.push(`Row ${rowIndex + 1} must contain at least one column.`);
-    }
-
-    row.columns.forEach((column, columnIndex) => {
-      if (column.span < 1 || column.span > GRID_COLUMNS) {
-        errors.push(
-          `Row ${rowIndex + 1}, column ${columnIndex + 1} has invalid span ${column.span}.`,
-        );
-      }
-    });
-  });
-
-  return errors;
-}
-
-export function normalizeApiLayout(
-  payload: unknown,
-  sectionOptions: SectionInstanceOption[],
-): LayoutRow[] {
-  const data = payload as
-    | {
-        draftRows?: Array<{
-          id?: string;
-          columns?: Array<{
-            id?: string;
-            span?: number;
-            sectionInstanceId?: string;
-          }>;
-        }>;
-        draftSections?: Array<{ sectionKey?: HomeSectionKey }>;
-      }
-    | undefined;
-
-  if (data?.draftRows?.length) {
-    return data.draftRows.map((row) => ({
-      id: row.id ?? createId('row'),
-      columns: (row.columns ?? []).map((column) => ({
-        id: column.id ?? createId('col'),
-        span: Number.isFinite(column.span) ? Number(column.span) : 12,
-        sectionInstanceId: column.sectionInstanceId,
-      })),
-    }));
-  }
-
-  if (data?.draftSections?.length) {
-    return data.draftSections.map((section) => {
-      const option = sectionOptions.find(
-        (item) => item.sectionKey === section.sectionKey,
-      );
-
-      return {
-        id: createId('row'),
-        columns: [
-          {
-            id: createId('col'),
-            span: 12,
-            sectionInstanceId: option?.id,
-          },
-        ],
-      };
-    });
-  }
-
-  if (sectionOptions.length) {
-    return sectionOptions.map((option) => ({
-      id: createId('row'),
-      columns: [
-        {
-          id: createId('col'),
-          span: 12,
-          sectionInstanceId: option.id,
-        },
-      ],
-    }));
-  }
-
-  return [createRowFromSpans([12])];
 }
