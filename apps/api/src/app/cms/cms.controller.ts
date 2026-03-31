@@ -35,9 +35,17 @@ export class CmsController {
   @Patch('layout/:pageSlug')
   updateLayout(
     @Param('pageSlug') pageSlug: string,
-    @Body() body: { draftSections: Array<{ sectionKey: HomeSectionKey }> },
+    @Body()
+    body: {
+      draftSections: Array<{ sectionKey: HomeSectionKey }>;
+      draftLayout?: unknown;
+    },
   ) {
-    return this.cmsService.updateDraftLayout(pageSlug, body.draftSections);
+    return this.cmsService.updateDraftLayout(
+      pageSlug,
+      body.draftSections,
+      body.draftLayout,
+    );
   }
 
   @Post('publish/:pageSlug')

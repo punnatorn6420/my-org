@@ -104,15 +104,22 @@ export class CmsService {
   async updateDraftLayout(
     pageSlug: string,
     draftSections: Array<{ sectionKey: HomeSectionKey }>,
+    draftLayout?: unknown,
   ) {
     const layout = await this.prisma.pageLayout.upsert({
       where: { pageSlug },
       update: {
-        draftSections: this.asJson(draftSections),
+        draftSections: this.asJson({
+          sections: draftSections,
+          layout: draftLayout ?? null,
+        }),
       },
       create: {
         pageSlug,
-        draftSections: this.asJson(draftSections),
+        draftSections: this.asJson({
+          sections: draftSections,
+          layout: draftLayout ?? null,
+        }),
       },
     });
 
@@ -126,9 +133,13 @@ export class CmsService {
       where: { pageSlug },
     });
 
-    const draftSections = layout.draftSections as Array<{
-      sectionKey: HomeSectionKey;
-    }>;
+    const rawDraft = layout.draftSections as
+      | Array<{ sectionKey: HomeSectionKey }>
+      | { sections?: Array<{ sectionKey: HomeSectionKey }> };
+
+    const draftSections = Array.isArray(rawDraft)
+      ? rawDraft
+      : (rawDraft.sections ?? []);
 
     const sectionMap = new Map<HomeSectionKey, SectionInstanceRecord>();
     const instances = await this.prisma.sectionInstance.findMany({
