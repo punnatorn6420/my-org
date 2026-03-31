@@ -3,6 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '../../../../../../libs/ui/src/components/ui/button';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '../../../../../../libs/ui/src/components/ui/dialog';
+import {
   DEFAULT_PAGE_SLUG,
   LAYOUT_STORAGE_KEY,
   createId,
@@ -42,6 +49,7 @@ export function LayoutEditorPage() {
   const [sections, setSections] = useState<SectionInstanceOption[]>([]);
   const [status, setStatus] = useState('Loading layout draft...');
   const [isBusy, setIsBusy] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const sectionLookup = useMemo(
     () => new Map(sections.map((section) => [section.id, section])),
@@ -307,6 +315,13 @@ export function LayoutEditorPage() {
           <div className="flex gap-2">
             <Button
               type="button"
+              variant="secondary"
+              onClick={() => setIsPreviewOpen(true)}
+            >
+              Preview Layout
+            </Button>
+            <Button
+              type="button"
               variant="outline"
               onClick={() => void saveDraft()}
               disabled={isBusy}
@@ -337,7 +352,7 @@ export function LayoutEditorPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(360px,1fr)]">
+      <div className="grid gap-6 xl:grid-cols-1">
         <section className="space-y-4">
           <RowTemplatePicker onPickTemplate={addRow} />
 
@@ -365,11 +380,21 @@ export function LayoutEditorPage() {
             ))}
           </div>
         </section>
-
-        <aside className="space-y-4">
-          <LayoutPreviewGrid rows={rows} sectionLookup={sectionLookup} />
-        </aside>
       </div>
+
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="h-[85vh] max-w-[min(1100px,95vw)] gap-0 overflow-hidden p-0">
+          <DialogHeader className="border-b px-6 py-4">
+            <DialogTitle>Layout Preview</DialogTitle>
+            <DialogDescription>
+              ตรวจสอบภาพรวมหน้าโดยไม่รบกวนพื้นที่แก้ไข layout หลัก
+            </DialogDescription>
+          </DialogHeader>
+          <div className="h-full overflow-y-auto p-4">
+            <LayoutPreviewGrid rows={rows} sectionLookup={sectionLookup} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
