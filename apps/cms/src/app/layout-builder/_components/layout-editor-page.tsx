@@ -3,6 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '../../../../../../libs/ui/src/components/ui/button';
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '../../../../../../libs/ui/src/components/ui/sheet';
+import {
   DEFAULT_PAGE_SLUG,
   LAYOUT_STORAGE_KEY,
   createId,
@@ -308,6 +315,13 @@ export function LayoutEditorPage() {
           <div className="flex gap-2">
             <Button
               type="button"
+              variant="secondary"
+              onClick={() => setIsPreviewOpen(true)}
+            >
+              Preview Layout
+            </Button>
+            <Button
+              type="button"
               variant="outline"
               onClick={() => void saveDraft()}
               disabled={isBusy}
@@ -338,13 +352,7 @@ export function LayoutEditorPage() {
         </div>
       ) : null}
 
-      <div
-        className={`grid gap-6 ${
-          isPreviewOpen
-            ? 'xl:grid-cols-[minmax(0,2fr)_minmax(360px,1fr)]'
-            : 'xl:grid-cols-1'
-        }`}
-      >
+      <div className="grid gap-6 xl:grid-cols-1">
         <section className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-card p-3">
             <p className="text-sm font-medium">Layout Builder</p>
@@ -383,13 +391,21 @@ export function LayoutEditorPage() {
             ))}
           </div>
         </section>
-
-        {isPreviewOpen ? (
-          <aside className="space-y-4">
-            <LayoutPreviewGrid rows={rows} sectionLookup={sectionLookup} />
-          </aside>
-        ) : null}
       </div>
+
+      <Sheet open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-4xl">
+          <SheetHeader className="border-b">
+            <SheetTitle>Layout Preview</SheetTitle>
+            <SheetDescription>
+              ตรวจสอบภาพรวมหน้าโดยไม่รบกวนพื้นที่แก้ไข layout หลัก
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto p-4">
+            <LayoutPreviewGrid rows={rows} sectionLookup={sectionLookup} />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
