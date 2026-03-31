@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '../../../../../../libs/ui/src/components/ui/button';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '../../../../../../libs/ui/src/components/ui/sheet';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '../../../../../../libs/ui/src/components/ui/dialog';
 import {
   DEFAULT_PAGE_SLUG,
   LAYOUT_STORAGE_KEY,
@@ -393,19 +393,19 @@ export function LayoutEditorPage() {
         </section>
       </div>
 
-      <Sheet open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-4xl">
-          <SheetHeader className="border-b">
-            <SheetTitle>Layout Preview</SheetTitle>
-            <SheetDescription>
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="h-[85vh] max-w-[min(1100px,95vw)] gap-0 overflow-hidden p-0">
+          <DialogHeader className="border-b px-6 py-4">
+            <DialogTitle>Layout Preview</DialogTitle>
+            <DialogDescription>
               ตรวจสอบภาพรวมหน้าโดยไม่รบกวนพื้นที่แก้ไข layout หลัก
-            </SheetDescription>
-          </SheetHeader>
-          <div className="flex-1 overflow-y-auto p-4">
+            </DialogDescription>
+          </DialogHeader>
+          <div className="h-full overflow-y-auto p-4">
             <LayoutPreviewGrid rows={rows} sectionLookup={sectionLookup} />
           </div>
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
