@@ -354,6 +354,17 @@ export function LayoutEditorPage() {
 
       <div className="grid gap-6 xl:grid-cols-1">
         <section className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-card p-3">
+            <p className="text-sm font-medium">Layout Builder</p>
+            <Button
+              type="button"
+              variant={isPreviewOpen ? 'secondary' : 'outline'}
+              onClick={() => setIsPreviewOpen((prev) => !prev)}
+            >
+              {isPreviewOpen ? 'Hide Preview' : 'Show Preview'}
+            </Button>
+          </div>
+
           <RowTemplatePicker onPickTemplate={addRow} />
 
           <div className="space-y-4">
