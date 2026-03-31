@@ -19,7 +19,9 @@
     "plugins": [{ "name": "next" }],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@my-org/ui": ["../../libs/ui/src/index.ts"],
+      "@my-org/ui/*": ["../../libs/ui/src/*"]
     }
   },
   "include": [
